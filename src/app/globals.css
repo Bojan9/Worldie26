@@ -1,0 +1,1384 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@clerk/ui/themes/shadcn.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --app-bg: #07131f;
+  --app-panel: #0d1b29;
+  --app-panel-soft: rgba(255, 255, 255, 0.045);
+  --app-panel-muted: rgba(0, 0, 0, 0.15);
+  --app-text: #f8fafc;
+  --app-muted-text: #94a3b8;
+  --app-accent: #bef264;
+  --app-accent-strong: #22d3ee;
+  --app-on-accent: #07131f;
+  --background: #07131f;
+  --foreground: #f8fafc;
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #bef264;
+  --primary-foreground: #07131f;
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+html[data-theme="blue"] {
+  color-scheme: light;
+  --app-bg: #f7fbff;
+  --app-panel: #ffffff;
+  --app-panel-soft: rgba(37, 99, 235, 0.055);
+  --app-panel-muted: rgba(37, 99, 235, 0.07);
+  --app-text: #0f172a;
+  --app-muted-text: #64748b;
+  --app-accent: #2563eb;
+  --app-accent-strong: #0284c7;
+  --app-on-accent: #ffffff;
+  --background: #f7fbff;
+  --foreground: #0f172a;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --border: rgba(37, 99, 235, 0.14);
+  --input: rgba(37, 99, 235, 0.1);
+  --ring: #2563eb;
+}
+
+html[data-theme="sunset"] {
+  color-scheme: dark;
+  --app-bg: #21130f;
+  --app-panel: #321c15;
+  --app-panel-soft: rgba(251, 146, 60, 0.075);
+  --app-panel-muted: rgba(0, 0, 0, 0.18);
+  --app-text: #fff7ed;
+  --app-muted-text: #d6a98e;
+  --app-accent: #fde047;
+  --app-accent-strong: #fb923c;
+  --app-on-accent: #21130f;
+  --background: #21130f;
+  --foreground: #fff7ed;
+  --primary: #fde047;
+  --primary-foreground: #21130f;
+  --card: #321c15;
+  --card-foreground: #fff7ed;
+  --popover: #321c15;
+  --popover-foreground: #fff7ed;
+  --border: rgba(251, 146, 60, 0.16);
+  --input: rgba(251, 146, 60, 0.13);
+  --ring: #fb923c;
+}
+
+html[data-theme="usa"] {
+  color-scheme: dark;
+  --app-bg: #071a3d;
+  --app-panel: #0d2857;
+  --app-panel-soft: rgba(255, 255, 255, 0.055);
+  --app-panel-muted: rgba(0, 0, 0, 0.18);
+  --app-text: #f8fafc;
+  --app-muted-text: #a9bbd8;
+  --app-accent: #e63946;
+  --app-accent-strong: #60a5fa;
+  --app-on-accent: #ffffff;
+  --background: #071a3d;
+  --foreground: #f8fafc;
+  --primary: #e63946;
+  --primary-foreground: #ffffff;
+  --card: #0d2857;
+  --card-foreground: #f8fafc;
+  --popover: #0d2857;
+  --popover-foreground: #f8fafc;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #60a5fa;
+}
+
+html[data-theme="canada"] {
+  color-scheme: dark;
+  --app-bg: #25090d;
+  --app-panel: #3b1016;
+  --app-panel-soft: rgba(239, 35, 60, 0.075);
+  --app-panel-muted: rgba(0, 0, 0, 0.2);
+  --app-text: #fff7f7;
+  --app-muted-text: #d8a9ae;
+  --app-accent: #ef233c;
+  --app-accent-strong: #ffffff;
+  --app-on-accent: #ffffff;
+  --background: #25090d;
+  --foreground: #fff7f7;
+  --primary: #ef233c;
+  --primary-foreground: #ffffff;
+  --card: #3b1016;
+  --card-foreground: #fff7f7;
+  --popover: #3b1016;
+  --popover-foreground: #fff7f7;
+  --border: rgba(255, 255, 255, 0.11);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #ef233c;
+}
+
+html[data-theme="mexico"] {
+  color-scheme: dark;
+  --app-bg: #062c24;
+  --app-panel: #0a4034;
+  --app-panel-soft: rgba(244, 241, 222, 0.06);
+  --app-panel-muted: rgba(0, 0, 0, 0.19);
+  --app-text: #f4f1de;
+  --app-muted-text: #a8c7bc;
+  --app-accent: #ce2b37;
+  --app-accent-strong: #e9c46a;
+  --app-on-accent: #ffffff;
+  --background: #062c24;
+  --foreground: #f4f1de;
+  --primary: #ce2b37;
+  --primary-foreground: #ffffff;
+  --card: #0a4034;
+  --card-foreground: #f4f1de;
+  --popover: #0a4034;
+  --popover-foreground: #f4f1de;
+  --border: rgba(244, 241, 222, 0.12);
+  --input: rgba(244, 241, 222, 0.13);
+  --ring: #e9c46a;
+}
+
+html[data-theme="germany"] {
+  color-scheme: dark;
+  --app-bg: #111111;
+  --app-panel: #1d1d1d;
+  --app-panel-soft: rgba(255, 204, 0, 0.065);
+  --app-panel-muted: rgba(0, 0, 0, 0.22);
+  --app-text: #fff8dc;
+  --app-muted-text: #b9b19a;
+  --app-accent: #dd0000;
+  --app-accent-strong: #ffcc00;
+  --app-on-accent: #ffffff;
+  --background: #111111;
+  --foreground: #fff8dc;
+  --primary: #dd0000;
+  --primary-foreground: #ffffff;
+  --card: #1d1d1d;
+  --card-foreground: #fff8dc;
+  --popover: #1d1d1d;
+  --popover-foreground: #fff8dc;
+  --border: rgba(255, 204, 0, 0.13);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #ffcc00;
+}
+
+html[data-theme="spain"] {
+  color-scheme: dark;
+  --app-bg: #3a0b12;
+  --app-panel: #551019;
+  --app-panel-soft: rgba(241, 191, 0, 0.07);
+  --app-panel-muted: rgba(0, 0, 0, 0.2);
+  --app-text: #fff8dc;
+  --app-muted-text: #d9b3a4;
+  --app-accent: #aa151b;
+  --app-accent-strong: #f1bf00;
+  --app-on-accent: #ffffff;
+  --background: #3a0b12;
+  --foreground: #fff8dc;
+  --primary: #aa151b;
+  --primary-foreground: #ffffff;
+  --card: #551019;
+  --card-foreground: #fff8dc;
+  --popover: #551019;
+  --popover-foreground: #fff8dc;
+  --border: rgba(241, 191, 0, 0.14);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #f1bf00;
+}
+
+html[data-theme="france"] {
+  color-scheme: dark;
+  --app-bg: #071b3b;
+  --app-panel: #0d2b59;
+  --app-panel-soft: rgba(237, 41, 57, 0.07);
+  --app-panel-muted: rgba(0, 0, 0, 0.18);
+  --app-text: #f8fafc;
+  --app-muted-text: #aebed8;
+  --app-accent: #ed2939;
+  --app-accent-strong: #ffffff;
+  --app-on-accent: #ffffff;
+  --background: #071b3b;
+  --foreground: #f8fafc;
+  --primary: #ed2939;
+  --primary-foreground: #ffffff;
+  --card: #0d2b59;
+  --card-foreground: #f8fafc;
+  --popover: #0d2b59;
+  --popover-foreground: #f8fafc;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #ed2939;
+}
+
+html[data-theme="netherlands"] {
+  color-scheme: dark;
+  --app-bg: #1b213b;
+  --app-panel: #282f50;
+  --app-panel-soft: rgba(243, 108, 33, 0.08);
+  --app-panel-muted: rgba(0, 0, 0, 0.18);
+  --app-text: #fffaf5;
+  --app-muted-text: #b8bdd0;
+  --app-accent: #f36c21;
+  --app-accent-strong: #ffffff;
+  --app-on-accent: #ffffff;
+  --background: #1b213b;
+  --foreground: #fffaf5;
+  --primary: #f36c21;
+  --primary-foreground: #ffffff;
+  --card: #282f50;
+  --card-foreground: #fffaf5;
+  --popover: #282f50;
+  --popover-foreground: #fffaf5;
+  --border: rgba(243, 108, 33, 0.16);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #f36c21;
+}
+
+html[data-theme="croatia"] {
+  color-scheme: dark;
+  --app-bg: #101f46;
+  --app-panel: #172b5d;
+  --app-panel-soft: rgba(255, 0, 0, 0.065);
+  --app-panel-muted: rgba(0, 0, 0, 0.18);
+  --app-text: #ffffff;
+  --app-muted-text: #afbddc;
+  --app-accent: #ff0000;
+  --app-accent-strong: #ffffff;
+  --app-on-accent: #ffffff;
+  --background: #101f46;
+  --foreground: #ffffff;
+  --primary: #ff0000;
+  --primary-foreground: #ffffff;
+  --card: #172b5d;
+  --card-foreground: #ffffff;
+  --popover: #172b5d;
+  --popover-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.13);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #ff0000;
+}
+
+html[data-theme="argentina"] {
+  color-scheme: dark;
+  --app-bg: #082f49;
+  --app-panel: #0c4568;
+  --app-panel-soft: rgba(116, 172, 223, 0.09);
+  --app-panel-muted: rgba(0, 0, 0, 0.17);
+  --app-text: #f8fcff;
+  --app-muted-text: #b6d2e5;
+  --app-accent: #74acdf;
+  --app-accent-strong: #f6b40e;
+  --app-on-accent: #082f49;
+  --background: #082f49;
+  --foreground: #f8fcff;
+  --primary: #74acdf;
+  --primary-foreground: #082f49;
+  --card: #0c4568;
+  --card-foreground: #f8fcff;
+  --popover: #0c4568;
+  --popover-foreground: #f8fcff;
+  --border: rgba(116, 172, 223, 0.18);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #f6b40e;
+}
+
+html[data-theme="brazil"] {
+  color-scheme: dark;
+  --app-bg: #043927;
+  --app-panel: #075139;
+  --app-panel-soft: rgba(255, 223, 0, 0.07);
+  --app-panel-muted: rgba(0, 0, 0, 0.18);
+  --app-text: #fffde7;
+  --app-muted-text: #acd0b9;
+  --app-accent: #ffdf00;
+  --app-accent-strong: #7dd3fc;
+  --app-on-accent: #043927;
+  --background: #043927;
+  --foreground: #fffde7;
+  --primary: #ffdf00;
+  --primary-foreground: #043927;
+  --card: #075139;
+  --card-foreground: #fffde7;
+  --popover: #075139;
+  --popover-foreground: #fffde7;
+  --border: rgba(255, 223, 0, 0.15);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #ffdf00;
+}
+
+html[data-theme="japan"] {
+  color-scheme: dark;
+  --app-bg: #21131a;
+  --app-panel: #35202a;
+  --app-panel-soft: rgba(188, 0, 45, 0.08);
+  --app-panel-muted: rgba(0, 0, 0, 0.2);
+  --app-text: #fffafa;
+  --app-muted-text: #cfb4be;
+  --app-accent: #bc002d;
+  --app-accent-strong: #ffffff;
+  --app-on-accent: #ffffff;
+  --background: #21131a;
+  --foreground: #fffafa;
+  --primary: #bc002d;
+  --primary-foreground: #ffffff;
+  --card: #35202a;
+  --card-foreground: #fffafa;
+  --popover: #35202a;
+  --popover-foreground: #fffafa;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #bc002d;
+}
+
+html[data-theme="senegal"] {
+  color-scheme: dark;
+  --app-bg: #063b2b;
+  --app-panel: #0a513d;
+  --app-panel-soft: rgba(253, 239, 66, 0.07);
+  --app-panel-muted: rgba(0, 0, 0, 0.18);
+  --app-text: #fffde7;
+  --app-muted-text: #afd1bc;
+  --app-accent: #fdef42;
+  --app-accent-strong: #e31b23;
+  --app-on-accent: #063b2b;
+  --background: #063b2b;
+  --foreground: #fffde7;
+  --primary: #fdef42;
+  --primary-foreground: #063b2b;
+  --card: #0a513d;
+  --card-foreground: #fffde7;
+  --popover: #0a513d;
+  --popover-foreground: #fffde7;
+  --border: rgba(253, 239, 66, 0.14);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #fdef42;
+}
+
+html[data-theme="macedonia"] {
+  color-scheme: dark;
+  --app-bg: #4a090d;
+  --app-panel: #661015;
+  --app-panel-soft: rgba(255, 230, 0, 0.07);
+  --app-panel-muted: rgba(0, 0, 0, 0.2);
+  --app-text: #fffce8;
+  --app-muted-text: #ddb3a4;
+  --app-accent: #d20000;
+  --app-accent-strong: #ffe600;
+  --app-on-accent: #ffffff;
+  --background: #4a090d;
+  --foreground: #fffce8;
+  --primary: #d20000;
+  --primary-foreground: #ffffff;
+  --card: #661015;
+  --card-foreground: #fffce8;
+  --popover: #661015;
+  --popover-foreground: #fffce8;
+  --border: rgba(255, 230, 0, 0.14);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #ffe600;
+}
+
+@layer components {
+  main [data-slot="card"],
+  main [data-slot="button"],
+  main [data-slot="input"],
+  main [data-slot="badge"],
+  main [data-slot="tabs-list"],
+  main [data-slot="tabs-trigger"],
+  main [data-slot="select-trigger"],
+  main [data-slot="select-content"] {
+    border-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  main [class*="rounded-"]:not([data-slot="avatar"]):not([data-slot="avatar-fallback"]) {
+    border-radius: 0 !important;
+  }
+
+  main div[class*="border-"]:not([data-slot="avatar"]):not([data-slot="avatar-fallback"]) {
+    border-color: transparent !important;
+  }
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  :where(
+    a[href],
+    button,
+    select,
+    summary,
+    label[for],
+    [role="button"],
+    [role="link"],
+    [data-slot="button"],
+    [data-slot="tabs-trigger"],
+    [data-slot="select-trigger"]
+  ):not(:disabled):not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  :where(
+    button,
+    select,
+    [role="button"],
+    [data-slot="button"],
+    [data-slot="tabs-trigger"],
+    [data-slot="select-trigger"]
+  ):disabled,
+  :where([aria-disabled="true"]) {
+    cursor: not-allowed;
+  }
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 80% 0%, rgba(34, 211, 238, 0.07), transparent 28rem),
+      var(--app-bg);
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+.theme-shell {
+  background-color: var(--app-bg) !important;
+  color: var(--app-text) !important;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+html[data-theme="blue"] body {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(37, 99, 235, 0.11), transparent 30rem),
+    var(--app-bg);
+}
+
+html[data-theme="sunset"] body {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(251, 146, 60, 0.11), transparent 30rem),
+    var(--app-bg);
+}
+
+html[data-theme="usa"] body {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(230, 57, 70, 0.11), transparent 30rem),
+    var(--app-bg);
+}
+
+html[data-theme="canada"] body {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(239, 35, 60, 0.12), transparent 30rem),
+    var(--app-bg);
+}
+
+html[data-theme="mexico"] body {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(233, 196, 106, 0.1), transparent 30rem),
+    var(--app-bg);
+}
+
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) body {
+  background:
+    radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--app-accent) 11%, transparent), transparent 30rem),
+    var(--app-bg);
+}
+
+html[data-theme="macedonia"] body {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(255, 230, 0, 0.12), transparent 30rem),
+    var(--app-bg);
+}
+
+html[data-theme="blue"] .theme-shell [class*="bg-[#07131f]"],
+html[data-theme="blue"] .theme-shell [class*="bg-[#081723]"],
+html[data-theme="blue"] .theme-shell [class*="bg-[#0b1825]"],
+html[data-theme="blue"] .theme-shell [class*="bg-[#0b1a28]"],
+html[data-theme="blue"] .theme-shell [class*="bg-[#0d1b29]"],
+html[data-theme="blue"] .theme-shell [class*="bg-[#0d1d2b]"],
+html[data-theme="blue"] .theme-shell [class*="bg-[#0a1927]"],
+html[data-theme="blue"] .theme-shell [class*="bg-[#020811]"] {
+  background-color: var(--app-panel) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class*="bg-white/"] {
+  background-color: var(--app-panel-soft) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class*="bg-black/"] {
+  background-color: var(--app-panel-muted) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class*="text-white"] {
+  color: var(--app-text) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class*="text-slate-"] {
+  color: var(--app-muted-text) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class*="text-lime-"],
+html[data-theme="blue"] .theme-shell [class*="text-cyan-"] {
+  color: var(--app-accent) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class~="bg-lime-300"],
+html[data-theme="blue"] .theme-shell [class~="bg-cyan-300"] {
+  background-color: var(--app-accent) !important;
+  color: var(--app-on-accent) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class*="bg-lime-"][class*="/"],
+html[data-theme="blue"] .theme-shell [class*="bg-cyan-"][class*="/"] {
+  background-color: rgba(37, 99, 235, 0.08) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class*="hover:text-white"]:hover {
+  color: var(--app-text) !important;
+}
+
+html[data-theme="blue"] .theme-shell [class*="border-white/"] {
+  border-color: rgba(37, 99, 235, 0.12) !important;
+}
+
+html[data-theme="sunset"] .theme-shell [class*="bg-[#07131f]"],
+html[data-theme="sunset"] .theme-shell [class*="bg-[#081723]"],
+html[data-theme="sunset"] .theme-shell [class*="bg-[#0b1825]"],
+html[data-theme="sunset"] .theme-shell [class*="bg-[#0b1a28]"],
+html[data-theme="sunset"] .theme-shell [class*="bg-[#0d1b29]"],
+html[data-theme="sunset"] .theme-shell [class*="bg-[#0d1d2b]"],
+html[data-theme="sunset"] .theme-shell [class*="bg-[#0a1927]"],
+html[data-theme="sunset"] .theme-shell [class*="bg-[#020811]"] {
+  background-color: var(--app-panel) !important;
+}
+
+html[data-theme="sunset"] .theme-shell [class*="bg-white/"] {
+  background-color: var(--app-panel-soft) !important;
+}
+
+html[data-theme="sunset"] .theme-shell [class*="text-slate-"] {
+  color: var(--app-muted-text) !important;
+}
+
+html[data-theme="sunset"] .theme-shell [class*="text-lime-"],
+html[data-theme="sunset"] .theme-shell [class*="text-cyan-"] {
+  color: var(--app-accent) !important;
+}
+
+html[data-theme="sunset"] .theme-shell [class*="bg-lime-"],
+html[data-theme="sunset"] .theme-shell [class*="bg-cyan-"] {
+  background-color: var(--app-accent) !important;
+  color: var(--app-on-accent) !important;
+}
+
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-[#07131f]"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-[#081723]"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-[#0b1825]"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-[#0b1a28]"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-[#0d1b29]"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-[#0d1d2b]"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-[#0a1927]"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-[#020811]"] {
+  background-color: var(--app-panel) !important;
+}
+
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-white/"] {
+  background-color: var(--app-panel-soft) !important;
+}
+
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-black/"] {
+  background-color: var(--app-panel-muted) !important;
+}
+
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="text-slate-"] {
+  color: var(--app-muted-text) !important;
+}
+
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="text-lime-"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="text-cyan-"] {
+  color: var(--app-accent-strong) !important;
+}
+
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class~="bg-lime-300"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class~="bg-cyan-300"] {
+  background-color: var(--app-accent) !important;
+  color: var(--app-on-accent) !important;
+}
+
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-lime-"][class*="/"],
+html:is([data-theme="usa"], [data-theme="canada"], [data-theme="mexico"]) .theme-shell [class*="bg-cyan-"][class*="/"] {
+  background-color: color-mix(in srgb, var(--app-accent) 10%, transparent) !important;
+}
+
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-[#07131f]"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-[#081723]"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-[#0b1825]"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-[#0b1a28]"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-[#0d1b29]"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-[#0d1d2b]"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-[#0a1927]"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-[#020811]"] {
+  background-color: var(--app-panel) !important;
+}
+
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-white/"] {
+  background-color: var(--app-panel-soft) !important;
+}
+
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-black/"] {
+  background-color: var(--app-panel-muted) !important;
+}
+
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="text-slate-"] {
+  color: var(--app-muted-text) !important;
+}
+
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="text-lime-"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="text-cyan-"] {
+  color: var(--app-accent-strong) !important;
+}
+
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class~="bg-lime-300"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class~="bg-cyan-300"] {
+  background-color: var(--app-accent) !important;
+  color: var(--app-on-accent) !important;
+}
+
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-lime-"][class*="/"],
+html:is(
+  [data-theme="germany"],
+  [data-theme="spain"],
+  [data-theme="france"],
+  [data-theme="netherlands"],
+  [data-theme="croatia"],
+  [data-theme="argentina"],
+  [data-theme="brazil"],
+  [data-theme="japan"],
+  [data-theme="senegal"]
+) .theme-shell [class*="bg-cyan-"][class*="/"] {
+  background-color: color-mix(in srgb, var(--app-accent) 10%, transparent) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="bg-[#07131f]"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-[#081723]"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-[#0b1825]"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-[#0b1a28]"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-[#0d1b29]"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-[#0d1d2b]"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-[#0a1927]"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-[#020811]"] {
+  background-color: var(--app-panel) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="bg-white/"] {
+  background-color: var(--app-panel-soft) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="bg-black/"] {
+  background-color: var(--app-panel-muted) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="text-slate-"] {
+  color: var(--app-muted-text) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="text-lime-"],
+html[data-theme="macedonia"] .theme-shell [class*="text-cyan-"] {
+  color: var(--app-accent-strong) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class~="bg-lime-300"],
+html[data-theme="macedonia"] .theme-shell [class~="bg-cyan-300"] {
+  background-color: var(--app-accent) !important;
+  color: var(--app-on-accent) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="bg-lime-"][class*="/"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-cyan-"][class*="/"] {
+  background-color: rgba(255, 230, 0, 0.08) !important;
+}
+
+html[data-theme="sunset"] .theme-shell [data-slot="card"] .stat-icon-tile {
+  background-color: rgba(251, 146, 60, 0.12) !important;
+  color: #fb923c !important;
+}
+
+html[data-theme="sunset"] .theme-shell [data-slot="card"] .stat-icon-tile svg {
+  color: #fb923c !important;
+  stroke: #fb923c !important;
+}
+
+html[data-theme="sunset"] .theme-shell [data-slot="card"] .stat-icon-tile:has(.text-violet-300) {
+  background-color: rgba(196, 181, 253, 0.12) !important;
+  color: #c4b5fd !important;
+}
+
+html[data-theme="sunset"] .theme-shell [data-slot="card"] .stat-icon-tile:has(.text-violet-300) svg {
+  color: #c4b5fd !important;
+  stroke: #c4b5fd !important;
+}
+
+html[data-theme="sunset"] .theme-shell [data-slot="card"] .stat-icon-tile:has(.text-amber-300) {
+  background-color: rgba(253, 224, 71, 0.12) !important;
+  color: #fde047 !important;
+}
+
+html[data-theme="sunset"] .theme-shell [data-slot="card"] .stat-icon-tile:has(.text-amber-300) svg {
+  color: #fde047 !important;
+  stroke: #fde047 !important;
+}
+
+html[data-theme="blue"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 78% 46%, rgba(56, 189, 248, 0.2), transparent 17rem),
+    linear-gradient(112deg, #172554 0%, #1e3a8a 56%, #075985 100%);
+}
+
+html[data-theme="sunset"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 78% 46%, rgba(253, 224, 71, 0.12), transparent 17rem),
+    linear-gradient(112deg, #21130f 0%, #512514 58%, #7c2d12 100%);
+}
+
+html[data-theme="usa"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(230, 57, 70, 0.14), transparent 18rem),
+    linear-gradient(112deg, #071a3d 0%, #102f65 58%, #7f1d2d 125%);
+}
+
+html[data-theme="canada"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(255, 255, 255, 0.08), transparent 18rem),
+    linear-gradient(112deg, #25090d 0%, #58131d 58%, #991b2d 115%);
+}
+
+html[data-theme="mexico"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(233, 196, 106, 0.1), transparent 18rem),
+    linear-gradient(112deg, #062c24 0%, #0a4b3c 58%, #6f1d27 125%);
+}
+
+html[data-theme="germany"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(255, 204, 0, 0.11), transparent 18rem),
+    linear-gradient(112deg, #090909 0%, #251414 58%, #7a1010 125%);
+}
+
+html[data-theme="spain"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(241, 191, 0, 0.12), transparent 18rem),
+    linear-gradient(112deg, #3a0b12 0%, #76141c 58%, #aa151b 115%);
+}
+
+html[data-theme="france"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(237, 41, 57, 0.12), transparent 18rem),
+    linear-gradient(112deg, #071b3b 0%, #113c78 58%, #8b1e2d 125%);
+}
+
+html[data-theme="netherlands"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(243, 108, 33, 0.15), transparent 18rem),
+    linear-gradient(112deg, #1b213b 0%, #383350 58%, #a43e12 125%);
+}
+
+html[data-theme="croatia"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(255, 0, 0, 0.12), transparent 18rem),
+    linear-gradient(112deg, #101f46 0%, #203c78 58%, #821727 125%);
+}
+
+html[data-theme="argentina"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(246, 180, 14, 0.11), transparent 18rem),
+    linear-gradient(112deg, #082f49 0%, #17658c 58%, #74acdf 130%);
+}
+
+html[data-theme="brazil"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(255, 223, 0, 0.11), transparent 18rem),
+    linear-gradient(112deg, #043927 0%, #087443 58%, #0b4f6c 130%);
+}
+
+html[data-theme="japan"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(188, 0, 45, 0.15), transparent 18rem),
+    linear-gradient(112deg, #21131a 0%, #4c1625 58%, #8e1534 120%);
+}
+
+html[data-theme="senegal"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(253, 239, 66, 0.11), transparent 18rem),
+    linear-gradient(112deg, #063b2b 0%, #087a46 58%, #8a6a0b 130%);
+}
+
+html[data-theme="macedonia"] .world-cup-hero {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(255, 230, 0, 0.15), transparent 18rem),
+    linear-gradient(112deg, #4a090d 0%, #8b1118 58%, #d20000 120%);
+}
+
+html[data-theme="usa"] .hero-outline-text {
+  -webkit-text-stroke-color: #e63946;
+  text-stroke-color: #e63946;
+}
+
+html[data-theme="canada"] .hero-outline-text {
+  -webkit-text-stroke-color: #ffffff;
+  text-stroke-color: #ffffff;
+}
+
+html[data-theme="mexico"] .hero-outline-text {
+  -webkit-text-stroke-color: #e9c46a;
+  text-stroke-color: #e9c46a;
+}
+
+html[data-theme="germany"] .hero-outline-text,
+html[data-theme="spain"] .hero-outline-text,
+html[data-theme="argentina"] .hero-outline-text,
+html[data-theme="brazil"] .hero-outline-text,
+html[data-theme="senegal"] .hero-outline-text {
+  -webkit-text-stroke-color: var(--app-accent-strong);
+  text-stroke-color: var(--app-accent-strong);
+}
+
+html[data-theme="macedonia"] .hero-outline-text {
+  -webkit-text-stroke-color: #ffe600;
+  text-stroke-color: #ffe600;
+}
+
+html[data-theme="france"] .hero-outline-text,
+html[data-theme="netherlands"] .hero-outline-text,
+html[data-theme="croatia"] .hero-outline-text,
+html[data-theme="japan"] .hero-outline-text {
+  -webkit-text-stroke-color: #ffffff;
+  text-stroke-color: #ffffff;
+}
+
+html[data-theme="blue"] .world-cup-hero .text-white,
+html[data-theme="blue"] .world-cup-hero [class*="text-white"],
+html[data-theme="blue"] .world-cup-hero [class*="text-slate-"] {
+  color: #ffffff !important;
+}
+
+html[data-theme="blue"] .world-cup-hero [class*="bg-white/"] {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-theme="blue"] .world-cup-hero [class~="bg-lime-300"],
+html[data-theme="blue"] .world-cup-hero [class~="bg-cyan-300"] {
+  background-color: #ffffff !important;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="blue"] .world-cup-hero [class*="text-lime-"],
+html[data-theme="blue"] .world-cup-hero [class*="text-cyan-"] {
+  color: #dbeafe !important;
+}
+
+html[data-theme="blue"] .world-cup-hero [class~="bg-lime-300"] [class*="text-"],
+html[data-theme="blue"] .world-cup-hero [class~="bg-cyan-300"] [class*="text-"] {
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="blue"] .theme-shell .world-cup-hero .blue-hero-node {
+  background: rgba(10, 35, 92, 0.55) !important;
+  border: 1px solid rgba(125, 211, 252, 0.2) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(8px);
+}
+
+html[data-theme="blue"] .theme-shell .world-cup-hero .blue-hero-node [class*="text-slate-"] {
+  color: #bfdbfe !important;
+}
+
+html[data-theme="blue"] .theme-shell .world-cup-hero .blue-hero-node [class*="text-cyan-"],
+html[data-theme="blue"] .theme-shell .world-cup-hero .blue-hero-node [class*="text-lime-"] {
+  color: #7dd3fc !important;
+}
+
+html[data-theme="blue"] .theme-shell .world-cup-hero .blue-hero-core {
+  background: rgba(8, 47, 107, 0.72) !important;
+  border: 1px solid rgba(125, 211, 252, 0.24) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 70px rgba(56, 189, 248, 0.2) !important;
+  backdrop-filter: blur(10px);
+}
+
+html[data-theme="blue"] .theme-shell .world-cup-hero .blue-hero-core [class*="text-cyan-"],
+html[data-theme="blue"] .theme-shell .world-cup-hero .blue-hero-core [class*="text-lime-"] {
+  color: #7dd3fc !important;
+}
+
+html[data-theme="blue"] #blue-hero-final {
+  background:
+    linear-gradient(135deg, rgba(8, 47, 107, 0.92), rgba(12, 74, 110, 0.9)) !important;
+  border: 1px solid rgba(125, 211, 252, 0.32) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 3px 0 0 #38bdf8,
+    0 16px 40px rgba(2, 32, 94, 0.18) !important;
+  backdrop-filter: blur(10px);
+}
+
+html[data-theme="blue"] #blue-hero-final,
+html[data-theme="blue"] #blue-hero-final [class*="text-"] {
+  color: #ffffff !important;
+}
+
+html[data-theme="blue"] .blue-third-place-panel,
+html[data-theme="blue"] .blue-points-card,
+html[data-theme="blue"] .blue-preview-main,
+html[data-theme="blue"] .blue-preview-side {
+  background: #ffffff !important;
+  border: 1px solid rgba(37, 99, 235, 0.12) !important;
+  color: #0f172a !important;
+  box-shadow: 0 14px 40px rgba(37, 99, 235, 0.07) !important;
+}
+
+html[data-theme="blue"] .blue-third-place-panel [class*="text-white"],
+html[data-theme="blue"] .blue-points-card [class*="text-white"],
+html[data-theme="blue"] .blue-preview-main [class*="text-white"],
+html[data-theme="blue"] .blue-preview-side [class*="text-white"] {
+  color: #0f172a !important;
+}
+
+html[data-theme="blue"] .blue-third-place-panel [class*="text-slate-"],
+html[data-theme="blue"] .blue-points-card [class*="text-slate-"],
+html[data-theme="blue"] .blue-preview-main [class*="text-slate-"],
+html[data-theme="blue"] .blue-preview-side [class*="text-slate-"] {
+  color: #64748b !important;
+}
+
+html[data-theme="blue"] .blue-third-place-panel [class*="text-lime-"],
+html[data-theme="blue"] .blue-third-place-panel [class*="text-cyan-"],
+html[data-theme="blue"] .blue-points-card [class*="text-lime-"],
+html[data-theme="blue"] .blue-preview-main [class*="text-lime-"] {
+  color: #2563eb !important;
+}
+
+html[data-theme="blue"] .blue-third-place-option {
+  background: #f8fbff !important;
+  border-color: #dbeafe !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="blue"] .blue-third-place-option:hover {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="blue"] .blue-third-place-option[class*="bg-lime-"] {
+  background: #dbeafe !important;
+  border-color: #2563eb !important;
+}
+
+html[data-theme="blue"] .blue-preview-main > div:first-child {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="blue"] .hero-outline-text {
+  -webkit-text-stroke-color: #ffffff;
+  text-stroke-color: #ffffff;
+}
+
+html[data-theme="blue"] ::selection {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+html[data-theme="sunset"] ::selection {
+  background: #fde047;
+  color: #21130f;
+}
+
+::selection {
+  background: #bef264;
+  color: #07131f;
+}
+
+.world-cup-hero {
+  background:
+    radial-gradient(circle at 78% 46%, rgba(190, 242, 100, 0.09), transparent 17rem),
+    linear-gradient(112deg, rgba(7, 19, 31, 1) 0%, rgba(8, 27, 41, 0.98) 55%, rgba(7, 42, 51, 0.92) 100%);
+}
+
+.world-cup-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.28;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(90deg, transparent, black 45%, black);
+}
+
+.world-cup-hero::after {
+  content: "26";
+  position: absolute;
+  right: -0.02em;
+  bottom: -0.28em;
+  color: rgba(255, 255, 255, 0.022);
+  font-size: clamp(12rem, 25vw, 25rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.12em;
+}
+
+.hero-outline-text {
+  color: transparent;
+  -webkit-text-stroke: 1.5px #bef264;
+  text-stroke: 1.5px #bef264;
+}
+
+/* Macedonia is intentionally explicit so hard-coded dark utility colors cannot win. */
+html[data-theme="macedonia"] body,
+html[data-theme="macedonia"] .theme-shell {
+  background-color: #4a090d !important;
+  color: #fffce8 !important;
+}
+
+html[data-theme="macedonia"] .theme-shell header {
+  background-color: rgba(74, 9, 13, 0.96) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [data-slot="card"],
+html[data-theme="macedonia"] .theme-shell [data-slot="tabs-list"],
+html[data-theme="macedonia"] .theme-shell [data-slot="select-content"],
+html[data-theme="macedonia"] .theme-shell select {
+  background-color: #661015 !important;
+  color: #fffce8 !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="bg-white/"],
+html[data-theme="macedonia"] .theme-shell [class*="bg-black/"] {
+  background-color: rgba(255, 230, 0, 0.065) !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="text-slate-"] {
+  color: #ddb3a4 !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class*="text-lime-"],
+html[data-theme="macedonia"] .theme-shell [class*="text-cyan-"] {
+  color: #ffe600 !important;
+}
+
+html[data-theme="macedonia"] .theme-shell [class~="bg-lime-300"],
+html[data-theme="macedonia"] .theme-shell [class~="bg-cyan-300"] {
+  background-color: #d20000 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="macedonia"] .world-cup-hero {
+  background:
+    repeating-conic-gradient(
+      from 260deg at 78% 48%,
+      rgba(255, 230, 0, 0.13) 0deg 8deg,
+      transparent 8deg 24deg
+    ),
+    radial-gradient(circle at 78% 48%, rgba(255, 230, 0, 0.22), transparent 12rem),
+    linear-gradient(112deg, #4a090d 0%, #8f1017 58%, #d20000 120%) !important;
+}
+
+html[data-theme="macedonia"] .world-cup-hero .hero-outline-text {
+  -webkit-text-stroke-color: #ffe600 !important;
+  text-stroke-color: #ffe600 !important;
+}
+
+html[data-theme="macedonia"] .world-cup-hero .blue-hero-node,
+html[data-theme="macedonia"] .world-cup-hero .blue-hero-core,
+html[data-theme="macedonia"] .world-cup-hero #blue-hero-final {
+  background: rgba(91, 10, 15, 0.72) !important;
+  border-color: rgba(255, 230, 0, 0.24) !important;
+  color: #fffce8 !important;
+}
+
+html[data-theme="macedonia"] .world-cup-hero .blue-hero-node [class*="text-"],
+html[data-theme="macedonia"] .world-cup-hero .blue-hero-core [class*="text-"],
+html[data-theme="macedonia"] .world-cup-hero #blue-hero-final [class*="text-"] {
+  color: #ffe600 !important;
+}
