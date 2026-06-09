@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   Activity,
+  Award,
   ArrowLeft,
   Database,
   LayoutDashboard,
@@ -14,12 +15,13 @@ import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/admin-auth";
 
 const adminLinks = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/matches", label: "Matches", icon: Activity },
-  { href: "/admin/standings", label: "Standings", icon: Trophy },
-  { href: "/admin/users", label: "Users & teams", icon: Users },
-  { href: "/admin/predictions", label: "Predictions", icon: Database },
-  { href: "/admin/settings", label: "Maintenance", icon: Settings },
+  { href: "/admin", label: "Преглед", icon: LayoutDashboard },
+  { href: "/admin/matches", label: "Натпревари", icon: Activity },
+  { href: "/admin/standings", label: "Табели", icon: Trophy },
+  { href: "/admin/awards", label: "Награди", icon: Award },
+  { href: "/admin/users", label: "Корисници и тимови", icon: Users },
+  { href: "/admin/predictions", label: "Предвидувања", icon: Database },
+  { href: "/admin/settings", label: "Одржување", icon: Settings },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -32,12 +34,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <Badge className="bg-lime-300/10 text-lime-300">
-                <ShieldCheck className="size-3" /> Restricted administration
+                <ShieldCheck className="size-3" /> Ограничена администрација
               </Badge>
-              <h1 className="mt-3 text-3xl font-black tracking-tight">Worldie26 control room</h1>
+              <h1 className="mt-3 text-3xl font-black tracking-tight">Контролен центар на Worldie26</h1>
             </div>
             <Button asChild className="w-fit bg-white/10 text-white hover:bg-white/15">
-              <Link href="/"><ArrowLeft /> Back to game</Link>
+              <Link href="/"><ArrowLeft /> Назад кон играта</Link>
             </Button>
           </div>
           <nav className="flex gap-1 overflow-x-auto border-t border-white/10 pt-4">

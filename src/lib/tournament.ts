@@ -29,18 +29,18 @@ const team = (code: string, name: string, flag: string): Team => ({
 });
 
 export const groups: TournamentGroup[] = [
-  { id: "A", teams: [team("MEX", "Mexico", "🇲🇽"), team("RSA", "South Africa", "🇿🇦"), team("KOR", "Korea Republic", "🇰🇷"), team("CZE", "Czechia", "🇨🇿")] },
-  { id: "B", teams: [team("CAN", "Canada", "🇨🇦"), team("BIH", "Bosnia & Herz.", "🇧🇦"), team("QAT", "Qatar", "🇶🇦"), team("SUI", "Switzerland", "🇨🇭")] },
-  { id: "C", teams: [team("BRA", "Brazil", "🇧🇷"), team("MAR", "Morocco", "🇲🇦"), team("HAI", "Haiti", "🇭🇹"), team("SCO", "Scotland", "🏴")] },
-  { id: "D", teams: [team("USA", "United States", "🇺🇸"), team("PAR", "Paraguay", "🇵🇾"), team("AUS", "Australia", "🇦🇺"), team("TUR", "Türkiye", "🇹🇷")] },
-  { id: "E", teams: [team("GER", "Germany", "🇩🇪"), team("CUW", "Curaçao", "🇨🇼"), team("CIV", "Côte d’Ivoire", "🇨🇮"), team("ECU", "Ecuador", "🇪🇨")] },
-  { id: "F", teams: [team("NED", "Netherlands", "🇳🇱"), team("JPN", "Japan", "🇯🇵"), team("SWE", "Sweden", "🇸🇪"), team("TUN", "Tunisia", "🇹🇳")] },
-  { id: "G", teams: [team("BEL", "Belgium", "🇧🇪"), team("EGY", "Egypt", "🇪🇬"), team("IRN", "IR Iran", "🇮🇷"), team("NZL", "New Zealand", "🇳🇿")] },
-  { id: "H", teams: [team("ESP", "Spain", "🇪🇸"), team("CPV", "Cabo Verde", "🇨🇻"), team("KSA", "Saudi Arabia", "🇸🇦"), team("URU", "Uruguay", "🇺🇾")] },
-  { id: "I", teams: [team("FRA", "France", "🇫🇷"), team("SEN", "Senegal", "🇸🇳"), team("IRQ", "Iraq", "🇮🇶"), team("NOR", "Norway", "🇳🇴")] },
-  { id: "J", teams: [team("ARG", "Argentina", "🇦🇷"), team("ALG", "Algeria", "🇩🇿"), team("AUT", "Austria", "🇦🇹"), team("JOR", "Jordan", "🇯🇴")] },
-  { id: "K", teams: [team("POR", "Portugal", "🇵🇹"), team("COD", "Congo DR", "🇨🇩"), team("UZB", "Uzbekistan", "🇺🇿"), team("COL", "Colombia", "🇨🇴")] },
-  { id: "L", teams: [team("ENG", "England", "🏴"), team("CRO", "Croatia", "🇭🇷"), team("GHA", "Ghana", "🇬🇭"), team("PAN", "Panama", "🇵🇦")] },
+  { id: "A", teams: [team("MEX", "Мексико", "🇲🇽"), team("RSA", "Јужна Африка", "🇿🇦"), team("KOR", "Јужна Кореја", "🇰🇷"), team("CZE", "Чешка", "🇨🇿")] },
+  { id: "B", teams: [team("CAN", "Канада", "🇨🇦"), team("BIH", "Босна и Херцеговина", "🇧🇦"), team("QAT", "Катар", "🇶🇦"), team("SUI", "Швајцарија", "🇨🇭")] },
+  { id: "C", teams: [team("BRA", "Бразил", "🇧🇷"), team("MAR", "Мароко", "🇲🇦"), team("HAI", "Хаити", "🇭🇹"), team("SCO", "Шкотска", "🏴")] },
+  { id: "D", teams: [team("USA", "Соединети Американски Држави", "🇺🇸"), team("PAR", "Парагвај", "🇵🇾"), team("AUS", "Австралија", "🇦🇺"), team("TUR", "Турција", "🇹🇷")] },
+  { id: "E", teams: [team("GER", "Германија", "🇩🇪"), team("CUW", "Курасао", "🇨🇼"), team("CIV", "Брегот на Слоновата Коска", "🇨🇮"), team("ECU", "Еквадор", "🇪🇨")] },
+  { id: "F", teams: [team("NED", "Холандија", "🇳🇱"), team("JPN", "Јапонија", "🇯🇵"), team("SWE", "Шведска", "🇸🇪"), team("TUN", "Тунис", "🇹🇳")] },
+  { id: "G", teams: [team("BEL", "Белгија", "🇧🇪"), team("EGY", "Египет", "🇪🇬"), team("IRN", "Иран", "🇮🇷"), team("NZL", "Нов Зеланд", "🇳🇿")] },
+  { id: "H", teams: [team("ESP", "Шпанија", "🇪🇸"), team("CPV", "Зелен ’Рт", "🇨🇻"), team("KSA", "Саудиска Арабија", "🇸🇦"), team("URU", "Уругвај", "🇺🇾")] },
+  { id: "I", teams: [team("FRA", "Франција", "🇫🇷"), team("SEN", "Сенегал", "🇸🇳"), team("IRQ", "Ирак", "🇮🇶"), team("NOR", "Норвешка", "🇳🇴")] },
+  { id: "J", teams: [team("ARG", "Аргентина", "🇦🇷"), team("ALG", "Алжир", "🇩🇿"), team("AUT", "Австрија", "🇦🇹"), team("JOR", "Јордан", "🇯🇴")] },
+  { id: "K", teams: [team("POR", "Португалија", "🇵🇹"), team("COD", "ДР Конго", "🇨🇩"), team("UZB", "Узбекистан", "🇺🇿"), team("COL", "Колумбија", "🇨🇴")] },
+  { id: "L", teams: [team("ENG", "Англија", "🏴"), team("CRO", "Хрватска", "🇭🇷"), team("GHA", "Гана", "🇬🇭"), team("PAN", "Панама", "🇵🇦")] },
 ];
 
 export const byCode = new Map(groups.flatMap((group) => group.teams).map((item) => [item.code, item]));

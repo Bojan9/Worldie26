@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, Database, Settings, Trophy, Users } from "lucide-react";
+import { Activity, Award, Database, Settings, Trophy, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { getAdminData } from "@/lib/admin-data";
 
@@ -13,11 +13,12 @@ function Metric({ label, value }: { label: string; value: number }) {
 }
 
 const sections = [
-  { href: "/admin/matches", title: "Match results", text: "Enter final scores and advance knockout winners.", icon: Activity },
-  { href: "/admin/standings", title: "Group standings", text: "Review automatically calculated group tables.", icon: Trophy },
-  { href: "/admin/users", title: "Users & teams", text: "Inspect registered players and tournament teams.", icon: Users },
-  { href: "/admin/predictions", title: "Predictions", text: "Review every score and tournament prediction.", icon: Database },
-  { href: "/admin/settings", title: "Maintenance", text: "Recalculate points or reset competition data.", icon: Settings },
+  { href: "/admin/matches", title: "Резултати", text: "Внеси конечни резултати и продолжи ги победниците во нокаут-фазата.", icon: Activity },
+  { href: "/admin/standings", title: "Табели по групи", text: "Прегледај ги автоматски пресметаните табели.", icon: Trophy },
+  { href: "/admin/awards", title: "Официјални награди", text: "Внеси ги четирите добитници и автоматски пресметај ги поените.", icon: Award },
+  { href: "/admin/users", title: "Корисници и тимови", text: "Прегледај ги регистрираните играчи и турнирските репрезентации.", icon: Users },
+  { href: "/admin/predictions", title: "Предвидувања", text: "Прегледај ги сите резултатски и турнирски предвидувања.", icon: Database },
+  { href: "/admin/settings", title: "Одржување", text: "Пресметај ги поените повторно или ресетирај ги податоците.", icon: Settings },
 ];
 
 export default async function AdminPage() {
@@ -26,17 +27,19 @@ export default async function AdminPage() {
   return (
     <>
       <div>
-        <h2 className="text-3xl font-black">Overview</h2>
-        <p className="mt-1 text-sm text-slate-400">Tournament data, scoring and manual recovery controls.</p>
+        <h2 className="text-3xl font-black">Преглед</h2>
+        <p className="mt-1 text-sm text-slate-400">Турнирски податоци, бодување и рачни контролни алатки.</p>
       </div>
-      <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-        <Metric label="Users" value={counts.users} />
-        <Metric label="Teams" value={counts.teams} />
-        <Metric label="Matches" value={counts.matches} />
-        <Metric label="Completed" value={counts.completedMatches} />
-        <Metric label="Match picks" value={counts.matchPredictions} />
-        <Metric label="Bracket picks" value={counts.tournamentPredictions} />
-        <Metric label="Points awarded" value={counts.totalPoints} />
+      <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-9">
+        <Metric label="Корисници" value={counts.users} />
+        <Metric label="Тимови" value={counts.teams} />
+        <Metric label="Натпревари" value={counts.matches} />
+        <Metric label="Завршени" value={counts.completedMatches} />
+        <Metric label="Предвидувања за мечеви" value={counts.matchPredictions} />
+        <Metric label="Турнирски предвидувања" value={counts.tournamentPredictions} />
+        <Metric label="Играчи" value={counts.players} />
+        <Metric label="Предвидувања за награди" value={counts.awardPredictions} />
+        <Metric label="Доделени поени" value={counts.totalPoints} />
       </section>
       <section className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {sections.map(({ href, title, text, icon: Icon }) => (

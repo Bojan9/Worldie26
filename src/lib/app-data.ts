@@ -4,13 +4,16 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
+  awardPredictions,
   matchPredictions,
   matches,
+  players,
   teams,
   tournamentPredictions,
   users,
 } from "@/db/schema";
 import { ADMIN_EMAIL } from "@/lib/admin-auth";
+import { syncWorldCupPlayers } from "@/lib/squad-data";
 import { getUpcomingMatches } from "@/lib/sports-data";
 import { scoreMatchPrediction } from "@/lib/scoring";
 import { groups, type Match } from "@/lib/tournament";
@@ -43,6 +46,7 @@ export type LeaderboardEntry = {
   initials: string;
   avatarUrl: string | null;
   tournament: number;
+  awards: number;
   matches: number;
   total: number;
   current: boolean;
@@ -53,10 +57,12 @@ export type CurrentPlayerStats = {
   totalPlayers: number;
   totalPoints: number;
   tournamentPoints: number;
+  awardPoints: number;
   matchPoints: number;
   exactScores: number;
   predictions: number;
   tournamentSubmitted: boolean;
+  awardsSubmitted: boolean;
 };
 
 export type TournamentPredictionData = {
@@ -64,6 +70,26 @@ export type TournamentPredictionData = {
   thirdPlaceGroups: string[];
   bracket: Record<string, string>;
   submittedAt: string;
+};
+
+export type AwardPlayerData = {
+  id: string;
+  name: string;
+  teamId: string;
+  teamName: string;
+  position: string;
+  dateOfBirth: string | null;
+  jerseyNumber: number | null;
+  imageUrl: string | null;
+};
+
+export type AwardPredictionData = {
+  goldenBootPlayerId: string;
+  goldenGlovePlayerId: string;
+  goldenBallPlayerId: string;
+  youngPlayerId: string;
+  submittedAt: string;
+  updatedAt: string;
 };
 
 export type AppData = {
@@ -74,6 +100,8 @@ export type AppData = {
   leaderboard: LeaderboardEntry[];
   currentPlayer: CurrentPlayerStats | null;
   tournamentPrediction: TournamentPredictionData | null;
+  awardPlayers: AwardPlayerData[];
+  awardPrediction: AwardPredictionData | null;
   signedIn: boolean;
   isAdmin: boolean;
   configured: boolean;
@@ -106,7 +134,7 @@ export async function syncCurrentUser() {
     profile?.fullName ??
     profile?.username ??
     profile?.primaryEmailAddress?.emailAddress.split("@")[0] ??
-    "Worldie Player";
+    "Worldie играч";
   const db = getDb();
 
   await db
@@ -314,6 +342,13 @@ async function getLeaderboard(userId: string | null) {
     .from(matchPredictions)
     .groupBy(matchPredictions.userId)
     .as("match_totals");
+  const awardTotals = db
+    .select({
+      userId: awardPredictions.userId,
+      awardPoints: awardPredictions.points,
+    })
+    .from(awardPredictions)
+    .as("award_totals");
 
   const rows = await db
     .select({
@@ -321,13 +356,15 @@ async function getLeaderboard(userId: string | null) {
       name: users.displayName,
       avatarUrl: users.avatarUrl,
       tournament: sql<number>`coalesce(${tournamentTotals.tournamentPoints}, 0)`.mapWith(Number),
+      awardPoints: sql<number>`coalesce(${awardTotals.awardPoints}, 0)`.mapWith(Number),
       matchPoints: sql<number>`coalesce(${matchTotals.matchPoints}, 0)`.mapWith(Number),
-      total: sql<number>`coalesce(${tournamentTotals.tournamentPoints}, 0) + coalesce(${matchTotals.matchPoints}, 0)`.mapWith(Number),
+      total: sql<number>`coalesce(${tournamentTotals.tournamentPoints}, 0) + coalesce(${awardTotals.awardPoints}, 0) + coalesce(${matchTotals.matchPoints}, 0)`.mapWith(Number),
     })
     .from(users)
     .leftJoin(tournamentTotals, eq(tournamentTotals.userId, users.id))
+    .leftJoin(awardTotals, eq(awardTotals.userId, users.id))
     .leftJoin(matchTotals, eq(matchTotals.userId, users.id))
-    .orderBy(desc(sql`coalesce(${tournamentTotals.tournamentPoints}, 0) + coalesce(${matchTotals.matchPoints}, 0)`), asc(users.createdAt));
+    .orderBy(desc(sql`coalesce(${tournamentTotals.tournamentPoints}, 0) + coalesce(${awardTotals.awardPoints}, 0) + coalesce(${matchTotals.matchPoints}, 0)`), asc(users.createdAt));
 
   return rows.map((row, index) => ({
     rank: index + 1,
@@ -336,6 +373,7 @@ async function getLeaderboard(userId: string | null) {
     initials: initials(row.name),
     avatarUrl: row.avatarUrl,
     tournament: row.tournament,
+    awards: row.awardPoints,
     matches: row.matchPoints,
     total: row.total,
     current: row.userId === userId,
@@ -360,6 +398,11 @@ async function getCurrentPlayerStats(
     .from(tournamentPredictions)
     .where(eq(tournamentPredictions.userId, userId))
     .limit(1);
+  const [awards] = await db
+    .select({ points: awardPredictions.points })
+    .from(awardPredictions)
+    .where(eq(awardPredictions.userId, userId))
+    .limit(1);
   const entry = leaderboard.find((player) => player.userId === userId);
 
   return {
@@ -367,10 +410,12 @@ async function getCurrentPlayerStats(
     totalPlayers: leaderboard.length,
     totalPoints: entry?.total ?? 0,
     tournamentPoints: tournament?.points ?? 0,
+    awardPoints: awards?.points ?? 0,
     matchPoints: entry?.matches ?? 0,
     exactScores: predictionStats?.exactScores ?? 0,
     predictions: predictionStats?.predictions ?? 0,
     tournamentSubmitted: Boolean(tournament),
+    awardsSubmitted: Boolean(awards),
   };
 }
 
@@ -394,6 +439,52 @@ async function getTournamentPrediction(userId: string | null) {
         submittedAt: prediction.submittedAt.toISOString(),
       }
     : null;
+}
+
+async function getAwardData(userId: string | null) {
+  if (!process.env.DATABASE_URL || !userId) {
+    return { awardPlayers: [], awardPrediction: null };
+  }
+  const db = getDb();
+  const [playerRows, predictionRows] = await Promise.all([
+    db
+      .select({
+        id: players.id,
+        name: players.name,
+        teamId: players.teamId,
+        teamName: teams.name,
+        position: players.position,
+        dateOfBirth: players.dateOfBirth,
+        jerseyNumber: players.jerseyNumber,
+        imageUrl: players.imageUrl,
+      })
+      .from(players)
+      .innerJoin(teams, eq(teams.id, players.teamId))
+      .orderBy(asc(teams.name), asc(players.name)),
+    db
+      .select()
+      .from(awardPredictions)
+      .where(eq(awardPredictions.userId, userId))
+      .limit(1),
+  ]);
+  const prediction = predictionRows[0];
+
+  return {
+    awardPlayers: playerRows.map((player) => ({
+      ...player,
+      dateOfBirth: player.dateOfBirth?.toISOString() ?? null,
+    })),
+    awardPrediction: prediction
+      ? {
+          goldenBootPlayerId: prediction.goldenBootPlayerId,
+          goldenGlovePlayerId: prediction.goldenGlovePlayerId,
+          goldenBallPlayerId: prediction.goldenBallPlayerId,
+          youngPlayerId: prediction.youngPlayerId,
+          submittedAt: prediction.submittedAt.toISOString(),
+          updatedAt: prediction.updatedAt.toISOString(),
+        }
+      : null,
+  };
 }
 
 async function applyPersistedResults(schedule: Match[]) {
@@ -447,6 +538,8 @@ export async function getAppData(): Promise<AppData> {
       leaderboard: [],
       currentPlayer: null,
       tournamentPrediction: null,
+      awardPlayers: [],
+      awardPrediction: null,
       signedIn: false,
       isAdmin: false,
       configured: false,
@@ -454,13 +547,19 @@ export async function getAppData(): Promise<AppData> {
   }
 
   await syncTournamentData(schedule);
+  try {
+    await syncWorldCupPlayers();
+  } catch (error) {
+    console.error("Player squad sync failed", error);
+  }
   schedule = await applyPersistedResults(schedule);
   const currentUserData = await syncCurrentUser();
   const userId = currentUserData?.userId ?? null;
-  const [matchPredictionData, leaderboard, tournamentPrediction] = await Promise.all([
+  const [matchPredictionData, leaderboard, tournamentPrediction, awardData] = await Promise.all([
     getMatchPredictionData(schedule.map((match) => match.id), userId),
     getLeaderboard(userId),
     getTournamentPrediction(userId),
+    getAwardData(userId),
   ]);
 
   return {
@@ -471,6 +570,7 @@ export async function getAppData(): Promise<AppData> {
     leaderboard,
     currentPlayer: await getCurrentPlayerStats(userId, leaderboard),
     tournamentPrediction,
+    ...awardData,
     signedIn: Boolean(userId),
     isAdmin: currentUserData?.email === ADMIN_EMAIL,
     configured: true,

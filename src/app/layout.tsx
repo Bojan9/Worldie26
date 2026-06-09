@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Worldie 26 | Fantasy World Cup",
+  title: "Worldie 26 | Фантази Светско првенство",
   description:
-    "Predict the 2026 World Cup bracket and every match. Climb the combined leaderboard.",
+    "Предвиди го турнирскиот костур и секој натпревар од Светското првенство 2026. Искачи се на вкупната табела.",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="usa" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="mk" data-theme="usa" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className={geistSans.className}>
         <AppAuthProvider>
           {children}

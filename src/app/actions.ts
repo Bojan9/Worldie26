@@ -1,11 +1,18 @@
 "use server";
 
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getDb } from "@/db";
-import { matchPredictions, matches, tournamentPredictions, users } from "@/db/schema";
+import {
+  awardPredictions,
+  matchPredictions,
+  matches,
+  players,
+  tournamentPredictions,
+  users,
+} from "@/db/schema";
 import { canSubmitMatchPrediction } from "@/lib/scoring";
 import { groups } from "@/lib/tournament";
 
@@ -13,6 +20,13 @@ const scoreSchema = z.object({
   matchId: z.coerce.number().int().positive(),
   homeScore: z.coerce.number().int().min(0).max(30),
   awayScore: z.coerce.number().int().min(0).max(30),
+});
+
+const awardSchema = z.object({
+  goldenBootPlayerId: z.string().min(1),
+  goldenGlovePlayerId: z.string().min(1),
+  goldenBallPlayerId: z.string().min(1),
+  youngPlayerId: z.string().min(1),
 });
 
 const teamCodes = new Set(groups.flatMap((group) => group.teams.map((team) => team.code)));
@@ -35,7 +49,7 @@ const tournamentSchema = z.object({
   ) {
     context.addIssue({
       code: "custom",
-      message: "Every group must contain four uniquely ranked teams.",
+      message: "Секоја група мора да содржи четири различно рангирани репрезентации.",
     });
   }
   if (
@@ -45,7 +59,7 @@ const tournamentSchema = z.object({
   ) {
     context.addIssue({
       code: "custom",
-      message: "Exactly eight unique third-place groups must be selected.",
+      message: "Мора да изберете точно осум различни групи со третопласирани репрезентации.",
     });
   }
   if (
@@ -54,20 +68,20 @@ const tournamentSchema = z.object({
   ) {
     context.addIssue({
       code: "custom",
-      message: "All 32 knockout winners must be selected.",
+      message: "Мора да бидат избрани сите 32 победници во нокаут-фазата.",
     });
   }
 });
 
 async function ensureCurrentUser(db: ReturnType<typeof getDb>) {
   const { userId } = await auth();
-  if (!userId) throw new Error("You must sign in to submit a prediction.");
+  if (!userId) throw new Error("Мора да се најавите за да испратите предвидување.");
   const profile = await currentUser();
   const displayName =
     profile?.fullName ??
     profile?.username ??
     profile?.primaryEmailAddress?.emailAddress.split("@")[0] ??
-    "Worldie Player";
+    "Worldie играч";
   await db
     .insert(users)
     .values({
@@ -98,7 +112,7 @@ export async function saveMatchPrediction(input: z.input<typeof scoreSchema>) {
     .limit(1);
 
   if (!match || !canSubmitMatchPrediction(match.kickoff)) {
-    throw new Error("Predictions close 10 minutes before kickoff.");
+    throw new Error("Предвидувањата се затвораат 10 минути пред почетокот.");
   }
 
   await db
@@ -126,7 +140,7 @@ export async function saveTournamentPrediction(
   const prediction = tournamentSchema.parse(input);
   const lockTime = new Date("2026-06-11T18:50:00Z");
   if (Date.now() > lockTime.getTime()) {
-    throw new Error("Tournament predictions are closed.");
+    throw new Error("Турнирските предвидувања се затворени.");
   }
 
   const db = getDb();
@@ -143,9 +157,59 @@ export async function saveTournamentPrediction(
     .returning({ userId: tournamentPredictions.userId });
 
   if (inserted.length === 0) {
-    throw new Error("Your tournament prediction has already been submitted.");
+    throw new Error("Вашето турнирско предвидување веќе е испратено.");
   }
 
   revalidatePath("/");
   return { submitted: true };
+}
+
+export async function saveAwardPrediction(input: z.input<typeof awardSchema>) {
+  const prediction = awardSchema.parse(input);
+  const lockTime = new Date("2026-06-11T18:50:00Z");
+  if (Date.now() > lockTime.getTime()) {
+    throw new Error("Предвидувањата за наградите се затворени.");
+  }
+
+  const db = getDb();
+  const userId = await ensureCurrentUser(db);
+  const selectedIds = [...new Set(Object.values(prediction))];
+  const selectedPlayers = await db
+    .select({
+      id: players.id,
+      position: players.position,
+      dateOfBirth: players.dateOfBirth,
+    })
+    .from(players)
+    .where(inArray(players.id, selectedIds));
+  const playerById = new Map(selectedPlayers.map((player) => [player.id, player]));
+
+  if (selectedIds.some((id) => !playerById.has(id))) {
+    throw new Error("Еден или повеќе од избраните играчи не се валидни.");
+  }
+  if (playerById.get(prediction.goldenGlovePlayerId)?.position !== "Goalkeeper") {
+    throw new Error("За Златна ракавица мора да изберете голман.");
+  }
+
+  const youngPlayer = playerById.get(prediction.youngPlayerId);
+  const openingDay = new Date("2026-06-11T00:00:00Z");
+  const under21Cutoff = new Date(openingDay);
+  under21Cutoff.setUTCFullYear(under21Cutoff.getUTCFullYear() - 21);
+  if (!youngPlayer?.dateOfBirth || youngPlayer.dateOfBirth <= under21Cutoff) {
+    throw new Error("За наградата за млад играч мора да изберете играч под 21 година.");
+  }
+
+  await db
+    .insert(awardPredictions)
+    .values({ userId, ...prediction })
+    .onConflictDoUpdate({
+      target: awardPredictions.userId,
+      set: {
+        ...prediction,
+        updatedAt: new Date(),
+      },
+    });
+
+  revalidatePath("/");
+  return { saved: true };
 }

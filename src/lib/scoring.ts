@@ -1,5 +1,11 @@
 export type Score = { home: number; away: number };
 export type GroupRankings = Record<string, string[]>;
+export type AwardSelections = {
+  goldenBootPlayerId: string | null;
+  goldenGlovePlayerId: string | null;
+  goldenBallPlayerId: string | null;
+  youngPlayerId: string | null;
+};
 
 const outcome = ({ home, away }: Score) =>
   home === away ? "draw" : home > away ? "home" : "away";
@@ -44,5 +50,25 @@ export function scoreTournamentPrediction(
     perfectGroupBonuses,
     championPoints,
     total: groupPoints + perfectGroupBonuses + championPoints,
+  };
+}
+
+export function scoreAwardPrediction(
+  prediction: AwardSelections,
+  result: AwardSelections,
+) {
+  const keys = [
+    "goldenBootPlayerId",
+    "goldenGlovePlayerId",
+    "goldenBallPlayerId",
+    "youngPlayerId",
+  ] as const;
+  const correct = keys.filter(
+    (key) => result[key] && prediction[key] === result[key],
+  ).length;
+
+  return {
+    correct,
+    total: correct * 10,
   };
 }

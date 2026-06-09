@@ -10,9 +10,9 @@ export default async function AdminStandingsPage() {
 
   return (
     <>
-      <h2 className="text-3xl font-black">Group standings</h2>
+      <h2 className="text-3xl font-black">Табели по групи</h2>
       <p className="mt-1 text-sm text-slate-400">
-        Tables update automatically from saved results. Manual ordering remains available as a fallback.
+        Табелите автоматски се ажурираат од зачуваните резултати. Рачното подредување останува достапно како резерва.
       </p>
       <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {groups.map((group) => {
@@ -23,8 +23,8 @@ export default async function AdminStandingsPage() {
               <Card className="gap-0 bg-white/4.5 p-5 text-white">
                 <input type="hidden" name="group" value={group.id} />
                 <div className="flex items-center justify-between">
-                  <h3 className="font-black">Group {group.id}</h3>
-                  <span className="text-xs text-slate-500">{standingByGroup.has(group.id) ? "Calculated" : "No results"}</span>
+                  <h3 className="font-black">Група {group.id}</h3>
+                  <span className="text-xs text-slate-500">{standingByGroup.has(group.id) ? "Пресметано" : "Нема резултати"}</span>
                 </div>
                 <div className="mt-4 grid gap-2">
                   {[1, 2, 3, 4].map((position) => (
@@ -36,7 +36,7 @@ export default async function AdminStandingsPage() {
                     </label>
                   ))}
                 </div>
-                <Button className="mt-4 w-full bg-lime-300 font-black text-slate-950 hover:bg-lime-200">Save fallback order</Button>
+                <Button className="mt-4 w-full bg-lime-300 font-black text-slate-950 hover:bg-lime-200">Зачувај резервен редослед</Button>
               </Card>
             </form>
           );

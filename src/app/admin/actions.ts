@@ -5,9 +5,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getDb } from "@/db";
 import {
+  awardPredictions,
   matchPredictions,
   matches,
+  officialAwards,
   officialGroupStandings,
+  players,
   tournamentPredictions,
 } from "@/db/schema";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -16,7 +19,11 @@ import {
   getDescendantMatchIds,
   knockoutMatches,
 } from "@/lib/knockout";
-import { scoreMatchPrediction, scoreTournamentPrediction } from "@/lib/scoring";
+import {
+  scoreAwardPrediction,
+  scoreMatchPrediction,
+  scoreTournamentPrediction,
+} from "@/lib/scoring";
 import { groups } from "@/lib/tournament";
 
 const matchResultSchema = z.object({
@@ -31,6 +38,13 @@ const matchResultSchema = z.object({
 const standingsSchema = z.object({
   group: z.string().length(1),
   rankings: z.array(z.string()).length(4),
+});
+
+const awardsSchema = z.object({
+  goldenBootPlayerId: z.string().min(1),
+  goldenGlovePlayerId: z.string().min(1),
+  goldenBallPlayerId: z.string().min(1),
+  youngPlayerId: z.string().min(1),
 });
 
 async function recalculateMatchPoints(matchId: number) {
@@ -111,6 +125,27 @@ async function recalculateTournamentPoints() {
           ).total,
         })
         .where(eq(tournamentPredictions.userId, prediction.userId)),
+    ),
+  );
+}
+
+async function recalculateAwardPoints() {
+  const db = getDb();
+  const [[result], predictions] = await Promise.all([
+    db.select().from(officialAwards).where(eq(officialAwards.id, 1)).limit(1),
+    db.select().from(awardPredictions),
+  ]);
+
+  await Promise.all(
+    predictions.map((prediction) =>
+      db
+        .update(awardPredictions)
+        .set({
+          points: result
+            ? scoreAwardPrediction(prediction, result).total
+            : 0,
+        })
+        .where(eq(awardPredictions.userId, prediction.userId)),
     ),
   );
 }
@@ -366,9 +401,9 @@ export async function updateMatchResult(formData: FormData) {
     .from(matches)
     .where(eq(matches.id, result.matchId))
     .limit(1);
-  if (!storedMatch) throw new Error("Match not found.");
+  if (!storedMatch) throw new Error("Натпреварот не е пронајден.");
   if (new Date() < storedMatch.kickoff) {
-    throw new Error("Results cannot be entered before kickoff.");
+    throw new Error("Резултатите не може да се внесат пред почетокот.");
   }
 
   const winnerTeamId =
@@ -383,14 +418,14 @@ export async function updateMatchResult(formData: FormData) {
     result.homeScore === result.awayScore &&
     !winnerTeamId
   ) {
-    throw new Error("Select the team that advanced after a tied knockout score.");
+    throw new Error("Изберете ја репрезентацијата што продолжила по нерешен резултат во нокаут-фазата.");
   }
   if (
     winnerTeamId &&
     winnerTeamId !== result.homeTeamId &&
     winnerTeamId !== result.awayTeamId
   ) {
-    throw new Error("The winner must be one of the teams in the match.");
+    throw new Error("Победникот мора да биде една од репрезентациите во натпреварот.");
   }
 
   await db
@@ -433,7 +468,7 @@ export async function updateGroupStandings(formData: FormData) {
     new Set(result.rankings).size !== 4 ||
     result.rankings.some((team) => !validTeams.has(team))
   ) {
-    throw new Error("Standings must contain every team in the group exactly once.");
+    throw new Error("Табелата мора да ја содржи секоја репрезентација од групата точно еднаш.");
   }
 
   const db = getDb();
@@ -450,6 +485,52 @@ export async function updateGroupStandings(formData: FormData) {
   revalidatePath("/admin");
 }
 
+export async function updateOfficialAwards(formData: FormData) {
+  await requireAdmin();
+  const result = awardsSchema.parse({
+    goldenBootPlayerId: formData.get("goldenBootPlayerId"),
+    goldenGlovePlayerId: formData.get("goldenGlovePlayerId"),
+    goldenBallPlayerId: formData.get("goldenBallPlayerId"),
+    youngPlayerId: formData.get("youngPlayerId"),
+  });
+  const db = getDb();
+  const selectedIds = [...new Set(Object.values(result))];
+  const selectedPlayers = await db
+    .select({
+      id: players.id,
+      position: players.position,
+      dateOfBirth: players.dateOfBirth,
+    })
+    .from(players)
+    .where(inArray(players.id, selectedIds));
+  const playerById = new Map(selectedPlayers.map((player) => [player.id, player]));
+
+  if (selectedIds.some((id) => !playerById.has(id))) {
+    throw new Error("Еден или повеќе избрани играчи не постојат.");
+  }
+  if (playerById.get(result.goldenGlovePlayerId)?.position !== "Goalkeeper") {
+    throw new Error("Добитникот на Златна ракавица мора да биде голман.");
+  }
+  const youngPlayer = playerById.get(result.youngPlayerId);
+  if (
+    !youngPlayer?.dateOfBirth ||
+    youngPlayer.dateOfBirth <= new Date("2005-06-11T00:00:00Z")
+  ) {
+    throw new Error("Добитникот за млад играч мора да биде под 21 година.");
+  }
+
+  await db
+    .insert(officialAwards)
+    .values({ id: 1, ...result })
+    .onConflictDoUpdate({
+      target: officialAwards.id,
+      set: { ...result, updatedAt: new Date() },
+    });
+  await recalculateAwardPoints();
+  revalidatePath("/");
+  revalidatePath("/admin");
+}
+
 export async function recalculateAllPoints() {
   await requireAdmin();
   const db = getDb();
@@ -459,6 +540,7 @@ export async function recalculateAllPoints() {
     .where(eq(matches.complete, true));
   await Promise.all(completed.map((match) => recalculateMatchPoints(match.id)));
   await recalculateTournamentPoints();
+  await recalculateAwardPoints();
   revalidatePath("/");
   revalidatePath("/admin");
 }
@@ -466,12 +548,14 @@ export async function recalculateAllPoints() {
 export async function resetCompetition(formData: FormData) {
   await requireAdmin();
   if (formData.get("confirmation") !== "RESET") {
-    throw new Error('Type "RESET" to confirm.');
+    throw new Error('Напишете „RESET“ за потврда.');
   }
 
   const db = getDb();
   await db.delete(matchPredictions);
+  await db.delete(awardPredictions);
   await db.delete(tournamentPredictions);
+  await db.delete(officialAwards);
   await db.delete(officialGroupStandings);
   await db
     .update(matches)

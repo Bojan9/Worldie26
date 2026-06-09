@@ -35,6 +35,21 @@ export const teams = pgTable("teams", {
   flag: text("flag").notNull(),
 });
 
+export const players = pgTable(
+  "players",
+  {
+    id: text("id").primaryKey(),
+    teamId: text("team_id").references(() => teams.id).notNull(),
+    name: text("name").notNull(),
+    position: text("position").notNull(),
+    dateOfBirth: timestamp("date_of_birth", { withTimezone: true }),
+    jerseyNumber: integer("jersey_number"),
+    imageUrl: text("image_url"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("players_team_name_idx").on(table.teamId, table.name)],
+);
+
 export const matches = pgTable("matches", {
   id: integer("id").primaryKey(),
   stage: matchStage("stage").notNull(),
@@ -83,3 +98,23 @@ export const matchPredictions = pgTable(
     uniqueIndex("match_prediction_user_match_idx").on(table.userId, table.matchId),
   ],
 );
+
+export const awardPredictions = pgTable("award_predictions", {
+  userId: text("user_id").primaryKey().references(() => users.id),
+  goldenBootPlayerId: text("golden_boot_player_id").references(() => players.id).notNull(),
+  goldenGlovePlayerId: text("golden_glove_player_id").references(() => players.id).notNull(),
+  goldenBallPlayerId: text("golden_ball_player_id").references(() => players.id).notNull(),
+  youngPlayerId: text("young_player_id").references(() => players.id).notNull(),
+  points: integer("points").default(0).notNull(),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const officialAwards = pgTable("official_awards", {
+  id: integer("id").primaryKey(),
+  goldenBootPlayerId: text("golden_boot_player_id").references(() => players.id),
+  goldenGlovePlayerId: text("golden_glove_player_id").references(() => players.id),
+  goldenBallPlayerId: text("golden_ball_player_id").references(() => players.id),
+  youngPlayerId: text("young_player_id").references(() => players.id),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
