@@ -2,8 +2,8 @@
 
 import { useMemo, useState, useTransition, type Dispatch, type DragEvent, type SetStateAction } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, ChevronUp, ChevronDown, GripVertical, Medal, Trophy } from "lucide-react";
-import { saveTournamentPrediction } from "@/app/actions";
+import { ArrowRight, Check, ChevronUp, ChevronDown, GripVertical, Medal, RotateCcw, Trophy } from "lucide-react";
+import { resetTournamentPrediction, saveTournamentPrediction } from "@/app/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -359,8 +359,8 @@ function TournamentPreview({
         ) : <p className="mt-4 text-slate-500">Прво пополни го нокаут-костурот.</p>}
         <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-slate-400">
           {submitted
-            ? "Ова е твоето заклучено турнирско предвидување. Не може да се промени или повторно да се испрати."
-            : "Внимателно провери ги изборите. По потврдувањето, ова турнирско предвидување не може да се измени или замени."}
+            ? "Ова е твоето испратено турнирско предвидување. Можеш да го ресетираш и повторно да го пополниш до почетокот на првиот натпревар."
+            : "Внимателно провери ги изборите. По потврдувањето можеш да го ресетираш целото предвидување само до почетокот на првиот натпревар."}
         </p>
         {submitted ? (
           <div className="mx-auto mt-7 flex w-fit items-center gap-2 bg-lime-300/10 px-4 py-3 text-sm font-black text-lime-200">
@@ -405,10 +405,14 @@ export function TournamentGame({
   signedIn,
   configured,
   savedPrediction,
+  tournamentLockTime,
+  tournamentLocked,
 }: {
   signedIn: boolean;
   configured: boolean;
   savedPrediction: TournamentPredictionData | null;
+  tournamentLockTime: string | null;
+  tournamentLocked: boolean;
 }) {
   const router = useRouter();
   const [rankings, setRankings] = useState<Rankings>(() => savedRankings(savedPrediction));
@@ -455,6 +459,24 @@ export function TournamentGame({
     });
   };
 
+  const resetPrediction = () => {
+    setError("");
+    startTransition(async () => {
+      try {
+        await resetTournamentPrediction();
+        setRankings(initialRankings);
+        setThirdGroups([]);
+        setWinners({});
+        setStep("groups");
+        setSubmitted(false);
+        setSubmittedAt(null);
+        router.refresh();
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "Предвидувањето не можеше да се ресетира.");
+      }
+    });
+  };
+
   const reorder = (group: string, from: number, to: number) => {
     if (to < 0 || to > 3 || from === to) return;
     setRankings((current) => {
@@ -479,27 +501,45 @@ export function TournamentGame({
         <div>
           <h1 className="text-4xl font-black tracking-tight text-white">{submitted ? "Твоето турнирско предвидување" : "Состави го твојот турнир"}</h1>
           <p className="mt-2 max-w-2xl text-slate-400">
-            {submitted ? "Твоето потврдено предвидување е заклучено и достапно тука за преглед." : "Рангирај ја секоја група, избери ги осумте третопласирани патници понатаму, а потоа предвиди ги сите 32 нокаут-натпревари."}
+            {submitted ? "Твоето потврдено предвидување е достапно тука за преглед и може да се ресетира до почетокот на првиот натпревар." : "Рангирај ја секоја група, избери ги осумте третопласирани патници понатаму, а потоа предвиди ги сите 32 нокаут-натпревари."}
           </p>
         </div>
         <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm">
-          <p className="font-bold text-amber-200">Се заклучува на 11 јуни во 18:50 UTC</p>
-          <p className="text-xs text-slate-400">Провери внимателно пред испраќање.</p>
+          <p className="font-bold text-amber-200">
+            {tournamentLockTime
+              ? `Се заклучува со почетокот на првиот натпревар: ${new Date(tournamentLockTime).toLocaleString("mk-MK", { timeZone: "UTC" })} UTC`
+              : "Времето за заклучување не е достапно"}
+          </p>
+          <p className="text-xs text-slate-400">До тогаш можеш да го ресетираш и повторно да го пополниш предвидувањето.</p>
         </div>
       </div>
 
       {submitted ? (
-        <TournamentPreview
-          champion={champion}
-          runnerUp={runnerUp}
-          bronzeWinner={bronzeWinner}
-          thirdGroups={thirdGroups}
-          winners={winners}
-          submitted
-          submittedAt={submittedAt}
-          onConfirm={() => undefined}
-          disabled
-        />
+        <>
+          <TournamentPreview
+            champion={champion}
+            runnerUp={runnerUp}
+            bronzeWinner={bronzeWinner}
+            thirdGroups={thirdGroups}
+            winners={winners}
+            submitted
+            submittedAt={submittedAt}
+            onConfirm={() => undefined}
+            disabled
+          />
+          <div className="mt-4 flex flex-col items-center gap-3">
+            <Button
+              disabled={pending || tournamentLocked}
+              onClick={resetPrediction}
+              variant="outline"
+              className="border-red-300/30 bg-red-300/10 font-black text-red-200 hover:bg-red-300/15"
+            >
+              <RotateCcw /> {pending ? "Се ресетира..." : "Ресетирај го предвидувањето"}
+            </Button>
+            {tournamentLocked ? <p className="text-sm font-bold text-amber-200">Ресетирањето е затворено бидејќи првиот натпревар започна.</p> : null}
+            {error ? <p className="text-sm font-bold text-red-300">{error}</p> : null}
+          </div>
+        </>
       ) : (
       <Tabs value={step} onValueChange={setStep} className="mt-8">
         <TabsList className="h-auto flex-wrap bg-white/5">
@@ -548,7 +588,7 @@ export function TournamentGame({
             submitted={false}
             submittedAt={null}
             onConfirm={() => setConfirmationOpen(true)}
-            disabled={!bracketComplete || !configured || !signedIn || pending}
+            disabled={!bracketComplete || !configured || !signedIn || pending || tournamentLocked}
           />
           {error ? <p className="mt-3 text-center text-sm font-bold text-red-300">{error}</p> : null}
         </TabsContent>
@@ -561,7 +601,7 @@ export function TournamentGame({
             <div className="grid size-12 place-items-center bg-amber-300/10 text-amber-200"><Trophy className="size-6" /></div>
             <h2 id="confirm-tournament-title" className="mt-5 text-2xl font-black">Да го потврдите турнирското предвидување?</h2>
             <p className="mt-3 text-sm leading-6 text-slate-400">
-              Оваа пријава е конечна. По потврдувањето нема да можете да ја измените или да внесете друго турнирско предвидување.
+              По потврдувањето можеш да го ресетираш целото предвидување и да започнеш одново само до почетокот на првиот натпревар.
             </p>
             <div className="mt-5 grid grid-cols-3 gap-2 bg-black/20 p-4 text-center">
               <div><p className="text-[10px] font-black uppercase text-slate-500">Шампион</p><p className="mt-1 text-sm font-bold text-lime-200">{champion?.name}</p></div>
@@ -572,7 +612,7 @@ export function TournamentGame({
             <div className="mt-7 flex justify-end gap-2">
               <Button disabled={pending} onClick={() => setConfirmationOpen(false)} className="bg-white/10 text-white hover:bg-white/15">Назад</Button>
               <Button disabled={pending} onClick={submitPrediction} className="bg-lime-300 px-5 font-black text-slate-950 hover:bg-lime-200">
-                {pending ? "Се испраќа..." : "Потврди трајно"} <Check />
+                {pending ? "Се испраќа..." : "Потврди предвидување"} <Check />
               </Button>
             </div>
           </Card>

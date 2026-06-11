@@ -32,13 +32,14 @@ bun run db:generate
 bun run db:push
 ```
 
-The schema stores users, teams, fixtures, one immutable tournament prediction per user, and one editable prediction per user/match.
+The schema stores users, teams, fixtures, one tournament prediction per user, and one editable prediction per user/match.
 
 On the linked Vercel project, Neon and Clerk are provisioned through Marketplace and their environment variables are available in Production, Preview, and Development.
 
 ## Rules
 
-- Tournament prediction: one submission before the tournament lock.
+- Tournament prediction: may be submitted, reset, and completed again until the first match starts.
+- Public leaderboard: every user can open another user's complete tournament prediction.
 - Match prediction: editable until 10 minutes before kickoff.
 - Exact score: 5 points total.
 - Correct match outcome: 2 points.

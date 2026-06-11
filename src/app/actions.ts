@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { eq, inArray } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getDb } from "@/db";
@@ -101,6 +101,26 @@ async function ensureCurrentUser(db: ReturnType<typeof getDb>) {
   return userId;
 }
 
+async function getTournamentLockTime(db: ReturnType<typeof getDb>) {
+  const [firstMatch] = await db
+    .select({ kickoff: matches.kickoff })
+    .from(matches)
+    .orderBy(asc(matches.kickoff))
+    .limit(1);
+
+  if (!firstMatch) {
+    throw new Error("Не може да се утврди почетокот на турнирот.");
+  }
+
+  return firstMatch.kickoff;
+}
+
+function assertTournamentOpen(lockTime: Date) {
+  if (Date.now() >= lockTime.getTime()) {
+    throw new Error("Турнирските предвидувања се затворени по почетокот на првиот натпревар.");
+  }
+}
+
 export async function saveMatchPrediction(input: z.input<typeof scoreSchema>) {
   const prediction = scoreSchema.parse(input);
   const db = getDb();
@@ -138,13 +158,9 @@ export async function saveTournamentPrediction(
   input: z.input<typeof tournamentSchema>,
 ) {
   const prediction = tournamentSchema.parse(input);
-  const lockTime = new Date("2026-06-11T18:50:00Z");
-  if (Date.now() > lockTime.getTime()) {
-    throw new Error("Турнирските предвидувања се затворени.");
-  }
-
   const db = getDb();
   const userId = await ensureCurrentUser(db);
+  assertTournamentOpen(await getTournamentLockTime(db));
   const inserted = await db
     .insert(tournamentPredictions)
     .values({
@@ -162,6 +178,19 @@ export async function saveTournamentPrediction(
 
   revalidatePath("/");
   return { submitted: true };
+}
+
+export async function resetTournamentPrediction() {
+  const db = getDb();
+  const userId = await ensureCurrentUser(db);
+  assertTournamentOpen(await getTournamentLockTime(db));
+
+  await db
+    .delete(tournamentPredictions)
+    .where(eq(tournamentPredictions.userId, userId));
+
+  revalidatePath("/");
+  return { reset: true };
 }
 
 export async function saveAwardPrediction(input: z.input<typeof awardSchema>) {

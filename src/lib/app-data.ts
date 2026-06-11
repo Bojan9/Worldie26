@@ -50,6 +50,7 @@ export type LeaderboardEntry = {
   matches: number;
   total: number;
   current: boolean;
+  tournamentPrediction: TournamentPredictionData | null;
 };
 
 export type CurrentPlayerStats = {
@@ -100,6 +101,8 @@ export type AppData = {
   leaderboard: LeaderboardEntry[];
   currentPlayer: CurrentPlayerStats | null;
   tournamentPrediction: TournamentPredictionData | null;
+  tournamentLockTime: string | null;
+  tournamentLocked: boolean;
   awardPlayers: AwardPlayerData[];
   awardPrediction: AwardPredictionData | null;
   signedIn: boolean;
@@ -359,8 +362,13 @@ async function getLeaderboard(userId: string | null) {
       awardPoints: sql<number>`coalesce(${awardTotals.awardPoints}, 0)`.mapWith(Number),
       matchPoints: sql<number>`coalesce(${matchTotals.matchPoints}, 0)`.mapWith(Number),
       total: sql<number>`coalesce(${tournamentTotals.tournamentPoints}, 0) + coalesce(${awardTotals.awardPoints}, 0) + coalesce(${matchTotals.matchPoints}, 0)`.mapWith(Number),
+      tournamentGroupRankings: tournamentPredictions.groupRankings,
+      tournamentThirdPlaceGroups: tournamentPredictions.thirdPlaceGroups,
+      tournamentBracket: tournamentPredictions.bracket,
+      tournamentSubmittedAt: tournamentPredictions.submittedAt,
     })
     .from(users)
+    .leftJoin(tournamentPredictions, eq(tournamentPredictions.userId, users.id))
     .leftJoin(tournamentTotals, eq(tournamentTotals.userId, users.id))
     .leftJoin(awardTotals, eq(awardTotals.userId, users.id))
     .leftJoin(matchTotals, eq(matchTotals.userId, users.id))
@@ -377,6 +385,18 @@ async function getLeaderboard(userId: string | null) {
     matches: row.matchPoints,
     total: row.total,
     current: row.userId === userId,
+    tournamentPrediction:
+      row.tournamentGroupRankings &&
+      row.tournamentThirdPlaceGroups &&
+      row.tournamentBracket &&
+      row.tournamentSubmittedAt
+        ? {
+            groupRankings: row.tournamentGroupRankings,
+            thirdPlaceGroups: row.tournamentThirdPlaceGroups,
+            bracket: row.tournamentBracket,
+            submittedAt: row.tournamentSubmittedAt.toISOString(),
+          }
+        : null,
   }));
 }
 
@@ -538,6 +558,12 @@ export async function getAppData(): Promise<AppData> {
       leaderboard: [],
       currentPlayer: null,
       tournamentPrediction: null,
+      tournamentLockTime: schedule
+        .map((match) => match.kickoff)
+        .sort((left, right) => new Date(left).getTime() - new Date(right).getTime())[0] ?? null,
+      tournamentLocked: schedule.length > 0
+        ? new Date(currentTime).getTime() >= Math.min(...schedule.map((match) => new Date(match.kickoff).getTime()))
+        : true,
       awardPlayers: [],
       awardPrediction: null,
       signedIn: false,
@@ -555,6 +581,9 @@ export async function getAppData(): Promise<AppData> {
   schedule = await applyPersistedResults(schedule);
   const currentUserData = await syncCurrentUser();
   const userId = currentUserData?.userId ?? null;
+  const tournamentLockTime = schedule
+    .map((match) => match.kickoff)
+    .sort((left, right) => new Date(left).getTime() - new Date(right).getTime())[0] ?? null;
   const [matchPredictionData, leaderboard, tournamentPrediction, awardData] = await Promise.all([
     getMatchPredictionData(schedule.map((match) => match.id), userId),
     getLeaderboard(userId),
@@ -570,6 +599,10 @@ export async function getAppData(): Promise<AppData> {
     leaderboard,
     currentPlayer: await getCurrentPlayerStats(userId, leaderboard),
     tournamentPrediction,
+    tournamentLockTime,
+    tournamentLocked: tournamentLockTime
+      ? new Date(currentTime).getTime() >= new Date(tournamentLockTime).getTime()
+      : true,
     ...awardData,
     signedIn: Boolean(userId),
     isAdmin: currentUserData?.email === ADMIN_EMAIL,
