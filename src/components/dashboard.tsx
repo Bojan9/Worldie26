@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, type FocusEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { TournamentGame } from "@/components/tournament-game";
+import { PublicTournamentPredictions } from "@/components/public-tournament-predictions";
 import { AwardsGame } from "@/components/awards-game";
 import { TeamFlag } from "@/components/team-flag";
 import { saveMatchPrediction } from "@/app/actions";
@@ -43,15 +44,9 @@ import type {
   CurrentPlayerStats,
   LeaderboardEntry,
   MatchPredictionData,
-  TournamentPredictionData,
 } from "@/lib/app-data";
-import {
-  bracketMatchOrder,
-  knockoutStages,
-  type KnockoutStage,
-} from "@/lib/knockout";
 import { cn } from "@/lib/utils";
-import { groups, type Match } from "@/lib/tournament";
+import type { Match } from "@/lib/tournament";
 
 const nav = [
   { id: "Dashboard", label: "Почетна" },
@@ -405,6 +400,7 @@ function MatchRow({
   const predictionClosed = new Date(currentTime).getTime() > new Date(match.kickoff).getTime() - 10 * 60 * 1000;
   const canSave = configured && signedIn && !predictionClosed && home !== "" && away !== "";
   const save = () => {
+    if (!canSave || pending || saved) return;
     setError("");
     startTransition(async () => {
       try {
@@ -420,8 +416,23 @@ function MatchRow({
       }
     });
   };
+
+  const saveWhenLeavingMatch = (event: FocusEvent<HTMLDivElement>) => {
+    const nextFocusedElement = event.relatedTarget;
+    if (
+      nextFocusedElement instanceof Node &&
+      event.currentTarget.contains(nextFocusedElement)
+    ) {
+      return;
+    }
+    save();
+  };
+
   return (
-    <Card className="gap-0 overflow-hidden border-white/10 bg-white/4.5 py-0 text-white shadow-none">
+    <Card
+      onBlur={saveWhenLeavingMatch}
+      className="gap-0 overflow-hidden border-white/10 bg-white/4.5 py-0 text-white shadow-none"
+    >
       <div className="flex flex-col gap-5 p-5 md:flex-row md:items-center">
         <div className="flex w-36 shrink-0 items-center gap-3">
           <div className="grid size-10 place-items-center rounded-xl bg-white/5 text-slate-400"><CalendarDays className="size-5" /></div>
@@ -474,7 +485,7 @@ function MatchRow({
               onClick={save}
               className={cn(
                 "bg-white/10 text-white disabled:bg-white/5 disabled:text-slate-700",
-                saved && "bg-lime-300 text-slate-950 hover:bg-lime-300",
+                saved && "!bg-cyan-300 !text-slate-950 hover:!bg-cyan-200",
               )}
             >
               <Check />
@@ -573,79 +584,7 @@ function MatchGame({
   );
 }
 
-const tournamentTeams = new Map(
-  groups.flatMap((group) => group.teams).map((team) => [team.code, team]),
-);
-
-const publicStageLabels: Record<KnockoutStage, string> = {
-  "Round of 32": "Шеснаесетфинале",
-  "Round of 16": "Осминафинале",
-  "Quarter-finals": "Четвртфинале",
-  "Semi-finals": "Полуфинале",
-  "Medal matches": "Мечеви за медали",
-};
-
-function TournamentPredictionDetails({
-  playerName,
-  prediction,
-}: {
-  playerName: string;
-  prediction: TournamentPredictionData;
-}) {
-  return (
-    <div className="max-h-[75vh] overflow-y-auto pr-2">
-      <h2 className="text-2xl font-black text-white">Предвидување на {playerName}</h2>
-      <p className="mt-1 text-xs text-slate-500">
-        Испратено на {new Date(prediction.submittedAt).toLocaleString("mk-MK")}
-      </p>
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {groups.map((group) => (
-          <Card key={group.id} className="gap-0 border-white/10 bg-black/20 p-4 text-white shadow-none">
-            <h3 className="font-black">ГРУПА {group.id}</h3>
-            <div className="mt-3 space-y-2">
-              {(prediction.groupRankings[group.id] ?? []).map((code, index) => {
-                const team = tournamentTeams.get(code);
-                return (
-                  <div key={code} className="flex items-center gap-2 text-sm">
-                    <span className="w-5 font-black text-slate-500">{index + 1}.</span>
-                    {team ? <TeamFlag team={team} size={20} /> : null}
-                    <span className="font-semibold">{team?.name ?? code}</span>
-                    {index === 2 && prediction.thirdPlaceGroups.includes(group.id) ? (
-                      <Badge className="ml-auto bg-cyan-300/10 text-[10px] text-cyan-200">Понатаму</Badge>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        ))}
-      </div>
-      <div className="mt-6 space-y-5">
-        {knockoutStages.map((stage) => (
-          <section key={stage}>
-            <h3 className="text-sm font-black uppercase tracking-wider text-cyan-300">{publicStageLabels[stage]}</h3>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              {bracketMatchOrder[stage].map((matchId) => {
-                const code = prediction.bracket[String(matchId)];
-                const team = code ? tournamentTeams.get(code) : undefined;
-                return (
-                  <div key={matchId} className="flex items-center gap-2 border border-white/8 bg-black/20 p-3 text-sm">
-                    <span className="font-mono text-xs text-slate-500">M{matchId}</span>
-                    {team ? <TeamFlag team={team} size={20} /> : null}
-                    <span className="font-bold text-white">{team?.name ?? code ?? "Нема избор"}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function Leaderboard({ players }: { players: LeaderboardEntry[] }) {
-  const [selectedPlayer, setSelectedPlayer] = useState<LeaderboardEntry | null>(null);
   return (
     <div>
       <Badge className="border-lime-300/30 bg-lime-300/10 text-lime-300"><Medal className="size-3" /> Табела во живо</Badge>
@@ -658,12 +597,9 @@ function Leaderboard({ players }: { players: LeaderboardEntry[] }) {
             <span>Место</span><span>Играч</span><span className="text-right">Турнир</span><span className="text-right">Награди</span><span className="text-right">Натпревари</span><span className="text-right">Вкупно</span>
           </div>
           {players.map((player) => (
-            <button
+            <div
               key={player.rank}
-              type="button"
-              disabled={!player.tournamentPrediction}
-              onClick={() => setSelectedPlayer(player)}
-              className={cn("grid w-full min-w-175 grid-cols-[48px_1fr_90px_90px_100px_80px] items-center border-b border-white/5 px-5 py-4 text-left last:border-0 enabled:hover:bg-white/5 disabled:cursor-default", player.current && "bg-cyan-300/10")}
+              className={cn("grid w-full min-w-175 grid-cols-[48px_1fr_90px_90px_100px_80px] items-center border-b border-white/5 px-5 py-4 text-left last:border-0", player.current && "bg-cyan-300/10")}
             >
               <span className={cn("font-black", player.rank <= 3 ? "text-lime-300" : "text-slate-500")}>#{player.rank}</span>
               <div className="flex items-center gap-3"><Avatar className="size-9">{player.avatarUrl ? <AvatarImage src={player.avatarUrl} alt="" /> : null}<AvatarFallback className={cn("text-xs font-bold", player.current ? "bg-cyan-300 text-slate-950" : "bg-white/10 text-white")}>{player.initials}</AvatarFallback></Avatar><span className="font-bold">{player.name}</span></div>
@@ -671,7 +607,7 @@ function Leaderboard({ players }: { players: LeaderboardEntry[] }) {
               <span className="text-right font-mono text-sm text-slate-400">{player.awards}</span>
               <span className="text-right font-mono text-sm text-slate-400">{player.matches}</span>
               <span className="text-right font-mono font-black text-white">{player.total}</span>
-            </button>
+            </div>
           ))}
           {players.length === 0 ? <p className="px-5 py-12 text-center text-sm text-slate-500">Сè уште нема резултати на табелата.</p> : null}
           </div>
@@ -696,22 +632,7 @@ function Leaderboard({ players }: { players: LeaderboardEntry[] }) {
           </Card>
         </div>
       </div>
-      {selectedPlayer?.tournamentPrediction ? (
-        <div className="fixed inset-0 z-100 grid place-items-center bg-[#020811]/85 p-5 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <Card className="relative w-full max-w-6xl border-white/10 bg-[#0d1b29] p-6 text-white shadow-2xl">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setSelectedPlayer(null)}
-              className="absolute right-4 top-4 z-10 text-slate-400 hover:bg-white/10 hover:text-white"
-              aria-label="Затвори"
-            >
-              <X />
-            </Button>
-            <TournamentPredictionDetails playerName={selectedPlayer.name} prediction={selectedPlayer.tournamentPrediction} />
-          </Card>
-        </div>
-      ) : null}
+      <PublicTournamentPredictions players={players} className="mt-8" />
     </div>
   );
 }
@@ -725,7 +646,7 @@ export function Dashboard({ data }: { data: AppData }) {
         {section === "Dashboard" ? <Overview setSection={setSection} nextMatches={data.nextMatches} stats={data.currentPlayer} leaderboard={data.leaderboard} configured={data.configured} /> : null}
         {section === "Tournament"
           ? data.signedIn
-            ? <TournamentGame signedIn configured={data.configured} savedPrediction={data.tournamentPrediction} tournamentLockTime={data.tournamentLockTime} tournamentLocked={data.tournamentLocked} />
+            ? <TournamentGame signedIn configured={data.configured} savedPrediction={data.tournamentPrediction} tournamentLockTime={data.tournamentLockTime} tournamentLocked={data.tournamentLocked} otherPlayers={data.leaderboard.filter((player) => !player.current)} />
             : <SignInRequired section="Турнир" configured={data.configured} />
           : null}
         {section === "Awards"

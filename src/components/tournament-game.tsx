@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { PublicTournamentPredictions } from "@/components/public-tournament-predictions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TeamFlag } from "@/components/team-flag";
-import type { TournamentPredictionData } from "@/lib/app-data";
+import type { LeaderboardEntry, TournamentPredictionData } from "@/lib/app-data";
 import {
   assignThirdPlaceGroups,
   bracketMatchOrder,
@@ -407,12 +408,14 @@ export function TournamentGame({
   savedPrediction,
   tournamentLockTime,
   tournamentLocked,
+  otherPlayers,
 }: {
   signedIn: boolean;
   configured: boolean;
   savedPrediction: TournamentPredictionData | null;
   tournamentLockTime: string | null;
   tournamentLocked: boolean;
+  otherPlayers: LeaderboardEntry[];
 }) {
   const router = useRouter();
   const [rankings, setRankings] = useState<Rankings>(() => savedRankings(savedPrediction));
@@ -514,6 +517,8 @@ export function TournamentGame({
         </div>
       </div>
 
+      {!submitted ? <PublicTournamentPredictions players={otherPlayers} className="mt-8" /> : null}
+
       {submitted ? (
         <>
           <TournamentPreview
@@ -539,6 +544,7 @@ export function TournamentGame({
             {tournamentLocked ? <p className="text-sm font-bold text-amber-200">Ресетирањето е затворено бидејќи првиот натпревар започна.</p> : null}
             {error ? <p className="text-sm font-bold text-red-300">{error}</p> : null}
           </div>
+          <PublicTournamentPredictions players={otherPlayers} className="mt-10 border-t border-white/10 pt-8" />
         </>
       ) : (
       <Tabs value={step} onValueChange={setStep} className="mt-8">
