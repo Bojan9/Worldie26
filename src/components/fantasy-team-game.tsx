@@ -435,9 +435,6 @@ export function FantasyTeamGame({
     <div className="space-y-7">
       <section className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end">
         <div>
-          <Badge className="bg-lime-300/10 text-lime-300">
-            <Shirt className="size-3" /> Фантази тим
-          </Badge>
           <h1 className="mt-4 text-4xl font-black tracking-tight text-white">
             Состави го твојот тим од 16 играчи
           </h1>
