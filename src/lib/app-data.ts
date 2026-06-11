@@ -17,7 +17,11 @@ import { ADMIN_EMAIL } from "@/lib/admin-auth";
 import { syncWorldCupPlayers } from "@/lib/squad-data";
 import { getUpcomingMatches } from "@/lib/sports-data";
 import { scoreMatchPrediction } from "@/lib/scoring";
-import { groups, type Match } from "@/lib/tournament";
+import {
+  groups,
+  TOURNAMENT_PREDICTION_LOCK_TIME,
+  type Match,
+} from "@/lib/tournament";
 import {
   countFantasyTransfers,
   type FantasyPeriod,
@@ -655,12 +659,10 @@ export async function getAppData(): Promise<AppData> {
       leaderboard: [],
       currentPlayer: null,
       tournamentPrediction: null,
-      tournamentLockTime: schedule
-        .map((match) => match.kickoff)
-        .sort((left, right) => new Date(left).getTime() - new Date(right).getTime())[0] ?? null,
-      tournamentLocked: schedule.length > 0
-        ? new Date(currentTime).getTime() >= Math.min(...schedule.map((match) => new Date(match.kickoff).getTime()))
-        : true,
+      tournamentLockTime: TOURNAMENT_PREDICTION_LOCK_TIME,
+      tournamentLocked:
+        new Date(currentTime).getTime() >=
+        new Date(TOURNAMENT_PREDICTION_LOCK_TIME).getTime(),
       awardPlayers: [],
       awardPrediction: null,
       fantasyTeam: null,
@@ -681,9 +683,7 @@ export async function getAppData(): Promise<AppData> {
   schedule = await applyPersistedResults(schedule);
   const currentUserData = await syncCurrentUser();
   const userId = currentUserData?.userId ?? null;
-  const tournamentLockTime = schedule
-    .map((match) => match.kickoff)
-    .sort((left, right) => new Date(left).getTime() - new Date(right).getTime())[0] ?? null;
+  const tournamentLockTime = TOURNAMENT_PREDICTION_LOCK_TIME;
   const [matchPredictionData, leaderboard, tournamentPrediction, awardData, fantasyTeam, fantasyContext, publicFantasyTeams] = await Promise.all([
     getMatchPredictionData(schedule.map((match) => match.id), userId),
     getLeaderboard(userId),

@@ -26,7 +26,7 @@ import {
   FANTASY_BUDGET,
   MAX_PLAYERS_PER_TEAM,
   fantasyFormations,
-  fantasyPositionCounts,
+  fantasyPositionLimits,
   countFantasyTransfers,
   formatFantasyPrice,
   getFantasyPrice,
@@ -309,7 +309,10 @@ export function FantasyTeamGame({
     starterIds.includes(captainId) &&
     (context.maxTransfers == null || transfersUsed <= context.maxTransfers) &&
     positionOrder.every(
-      (position) => squadCounts[position] === fantasyPositionCounts[position],
+      (position) => {
+        const limits = fantasyPositionLimits[position];
+        return squadCounts[position] >= limits.min && squadCounts[position] <= limits.max;
+      },
     );
 
   const changeFormation = (nextFormation: FantasyFormation) => {
@@ -326,7 +329,7 @@ export function FantasyTeamGame({
       setMessage("Тимот веќе има 16 играчи.");
       return;
     }
-    if (squadCounts[player.position] >= fantasyPositionCounts[player.position]) {
+    if (squadCounts[player.position] >= fantasyPositionLimits[player.position].max) {
       setMessage(`Веќе го имате максималниот број за позицијата ${positionLabels[player.position].toLowerCase()}.`);
       return;
     }
@@ -440,7 +443,7 @@ export function FantasyTeamGame({
           </h1>
           <p className="mt-2 max-w-3xl text-slate-400">
             Избери 2 голмани, 5 дефанзивци, 5 играчи од средниот ред и 4 напаѓачи.
-            Постави стартни 11, остани во буџетот од 160.0m и комбинирај најмногу тројца од една репрезентација.
+            Постави стартни 11, остани во буџетот од 170.0m и комбинирај најмногу тројца од една репрезентација.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2 text-center sm:grid-cols-5">
@@ -644,8 +647,15 @@ export function FantasyTeamGame({
               {positionOrder.map((position) => (
                 <div key={position} className="flex items-center justify-between bg-black/20 px-3 py-2 text-xs">
                   <span className="text-slate-400">{positionShortLabels[position]}</span>
-                  <b className={squadCounts[position] === fantasyPositionCounts[position] ? "text-lime-300" : "text-white"}>
-                    {squadCounts[position]}/{fantasyPositionCounts[position]}
+                  <b
+                    className={
+                      squadCounts[position] >= fantasyPositionLimits[position].min &&
+                      squadCounts[position] <= fantasyPositionLimits[position].max
+                        ? "text-lime-300"
+                        : "text-white"
+                    }
+                  >
+                    {squadCounts[position]}/{fantasyPositionLimits[position].max}
                   </b>
                 </div>
               ))}

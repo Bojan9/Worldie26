@@ -235,10 +235,11 @@ export function AwardsGame({
   );
   const locked =
     new Date(currentTime).getTime() > new Date("2026-06-11T18:50:00Z").getTime();
+  const submitted = Boolean(savedPrediction);
   const complete = Object.values(selection).every(Boolean);
 
   const submit = () => {
-    if (!complete || locked) return;
+    if (!complete || locked || submitted) return;
     setMessage(null);
     startTransition(async () => {
       try {
@@ -303,7 +304,7 @@ export function AwardsGame({
                 onSelect={(playerId) =>
                   setSelection((current) => ({ ...current, [key]: playerId }))
                 }
-                disabled={locked || isPending}
+                disabled={locked || submitted || isPending}
               />
             </Card>
           ))}
@@ -311,7 +312,11 @@ export function AwardsGame({
       )}
 
       <div className="mt-6 flex flex-col items-end gap-3">
-        {locked ? (
+        {submitted ? (
+          <p className="text-sm font-bold text-lime-300">
+            Изборите се зачувани и не можат да се променат.
+          </p>
+        ) : locked ? (
           <p className="text-sm text-amber-300">
             Изборите се затворени 10 минути пред првиот натпревар.
           </p>
@@ -319,14 +324,14 @@ export function AwardsGame({
         {message ? <p className="text-sm text-slate-300">{message}</p> : null}
         <Button
           onClick={submit}
-          disabled={!complete || locked || isPending}
+          disabled={!complete || locked || submitted || isPending}
           className="h-11 rounded-none bg-lime-300 px-6 font-black text-slate-950 hover:bg-lime-200"
         >
           <Check className="size-4" />
           {isPending
             ? "Се зачувува..."
-            : savedPrediction
-              ? "Ажурирај ги изборите"
+            : submitted
+              ? "Изборите се заклучени"
               : "Зачувај ги изборите"}
         </Button>
       </div>

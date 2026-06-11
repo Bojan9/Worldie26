@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { asc, eq, inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getDb } from "@/db";
@@ -18,7 +18,7 @@ import {
   FANTASY_BUDGET,
   MAX_PLAYERS_PER_TEAM,
   fantasyFormations,
-  fantasyPositionCounts,
+  fantasyPositionLimits,
   countFantasyTransfers,
   getFantasyPrice,
   isFantasyPosition,
@@ -30,7 +30,10 @@ import {
   getFantasyContext,
 } from "@/lib/fantasy-context";
 import { canSubmitMatchPrediction } from "@/lib/scoring";
-import { groups } from "@/lib/tournament";
+import {
+  groups,
+  TOURNAMENT_PREDICTION_LOCK_TIME,
+} from "@/lib/tournament";
 
 const scoreSchema = z.object({
   matchId: z.coerce.number().int().positive(),
@@ -125,23 +128,13 @@ async function ensureCurrentUser(db: ReturnType<typeof getDb>) {
   return userId;
 }
 
-async function getTournamentLockTime(db: ReturnType<typeof getDb>) {
-  const [firstMatch] = await db
-    .select({ kickoff: matches.kickoff })
-    .from(matches)
-    .orderBy(asc(matches.kickoff))
-    .limit(1);
-
-  if (!firstMatch) {
-    throw new Error("Не може да се утврди почетокот на турнирот.");
-  }
-
-  return firstMatch.kickoff;
+function getTournamentLockTime() {
+  return new Date(TOURNAMENT_PREDICTION_LOCK_TIME);
 }
 
 function assertTournamentOpen(lockTime: Date) {
   if (Date.now() >= lockTime.getTime()) {
-    throw new Error("Турнирските предвидувања се затворени по почетокот на првиот натпревар.");
+    throw new Error("Турнирските предвидувања се затворени на 11 јуни 2026 во 21:00 UTC.");
   }
 }
 
@@ -184,7 +177,7 @@ export async function saveTournamentPrediction(
   const prediction = tournamentSchema.parse(input);
   const db = getDb();
   const userId = await ensureCurrentUser(db);
-  assertTournamentOpen(await getTournamentLockTime(db));
+  assertTournamentOpen(getTournamentLockTime());
   const inserted = await db
     .insert(tournamentPredictions)
     .values({
@@ -207,7 +200,7 @@ export async function saveTournamentPrediction(
 export async function resetTournamentPrediction() {
   const db = getDb();
   const userId = await ensureCurrentUser(db);
-  assertTournamentOpen(await getTournamentLockTime(db));
+  assertTournamentOpen(getTournamentLockTime());
 
   await db
     .delete(tournamentPredictions)
@@ -252,16 +245,15 @@ export async function saveAwardPrediction(input: z.input<typeof awardSchema>) {
     throw new Error("За наградата за млад играч мора да изберете играч под 21 година.");
   }
 
-  await db
+  const inserted = await db
     .insert(awardPredictions)
     .values({ userId, ...prediction })
-    .onConflictDoUpdate({
-      target: awardPredictions.userId,
-      set: {
-        ...prediction,
-        updatedAt: new Date(),
-      },
-    });
+    .onConflictDoNothing()
+    .returning({ userId: awardPredictions.userId });
+
+  if (inserted.length === 0) {
+    throw new Error("Изборите за наградите се веќе зачувани и не можат да се променат.");
+  }
 
   revalidatePath("/");
   return { saved: true };
@@ -317,7 +309,7 @@ export async function saveFantasyTeam(
   }
 
   const squadCounts = Object.fromEntries(
-    Object.keys(fantasyPositionCounts).map((position) => [position, 0]),
+    Object.keys(fantasyPositionLimits).map((position) => [position, 0]),
   ) as Record<FantasyPosition, number>;
   const starterCounts = { ...squadCounts };
   const teamCounts = new Map<string, number>();
@@ -338,8 +330,11 @@ export async function saveFantasyTeam(
   const formation =
     fantasyFormations[fantasyTeam.formation as FantasyFormation];
   if (
-    Object.entries(fantasyPositionCounts).some(
-      ([position, count]) => squadCounts[position as FantasyPosition] !== count,
+    Object.entries(fantasyPositionLimits).some(
+      ([position, limits]) => {
+        const count = squadCounts[position as FantasyPosition];
+        return count < limits.min || count > limits.max;
+      },
     )
   ) {
     throw new Error("Тимот мора да има 2 голмани, 5 дефанзивци, 5 играчи од средниот ред и 4 напаѓачи.");
@@ -355,7 +350,7 @@ export async function saveFantasyTeam(
     throw new Error("Може да изберете најмногу 3 играчи од една репрезентација.");
   }
   if (totalPrice > FANTASY_BUDGET) {
-    throw new Error("Избраниот тим го надминува буџетот од 160.0m.");
+    throw new Error("Избраниот тим го надминува буџетот од 170.0m.");
   }
   await assertFantasyTeamsEligible(
     selectedPlayers.map((player) => player.teamId),

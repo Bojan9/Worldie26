@@ -360,8 +360,8 @@ function TournamentPreview({
         ) : <p className="mt-4 text-slate-500">Прво пополни го нокаут-костурот.</p>}
         <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-slate-400">
           {submitted
-            ? "Ова е твоето испратено турнирско предвидување. Можеш да го ресетираш и повторно да го пополниш до почетокот на првиот натпревар."
-            : "Внимателно провери ги изборите. По потврдувањето можеш да го ресетираш целото предвидување само до почетокот на првиот натпревар."}
+            ? "Ова е твоето испратено турнирско предвидување. Можеш да го ресетираш и повторно да го пополниш до 21:00 UTC на 11 јуни."
+            : "Внимателно провери ги изборите. По потврдувањето можеш да го ресетираш целото предвидување само до 21:00 UTC на 11 јуни."}
         </p>
         {submitted ? (
           <div className="mx-auto mt-7 flex w-fit items-center gap-2 bg-lime-300/10 px-4 py-3 text-sm font-black text-lime-200">
@@ -504,13 +504,13 @@ export function TournamentGame({
         <div>
           <h1 className="text-4xl font-black tracking-tight text-white">{submitted ? "Твоето турнирско предвидување" : "Состави го твојот турнир"}</h1>
           <p className="mt-2 max-w-2xl text-slate-400">
-            {submitted ? "Твоето потврдено предвидување е достапно тука за преглед и може да се ресетира до почетокот на првиот натпревар." : "Рангирај ја секоја група, избери ги осумте третопласирани патници понатаму, а потоа предвиди ги сите 32 нокаут-натпревари."}
+            {submitted ? "Твоето потврдено предвидување е достапно тука за преглед и може да се ресетира до 21:00 UTC на 11 јуни." : "Рангирај ја секоја група, избери ги осумте третопласирани патници понатаму, а потоа предвиди ги сите 32 нокаут-натпревари."}
           </p>
         </div>
         <div className="rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm">
           <p className="font-bold text-amber-200">
             {tournamentLockTime
-              ? `Се заклучува со почетокот на првиот натпревар: ${new Date(tournamentLockTime).toLocaleString("mk-MK", { timeZone: "UTC" })} UTC`
+              ? `Се заклучува на ${new Date(tournamentLockTime).toLocaleString("mk-MK", { timeZone: "UTC" })} UTC`
               : "Времето за заклучување не е достапно"}
           </p>
           <p className="text-xs text-slate-400">До тогаш можеш да го ресетираш и повторно да го пополниш предвидувањето.</p>
@@ -541,7 +541,7 @@ export function TournamentGame({
             >
               <RotateCcw /> {pending ? "Се ресетира..." : "Ресетирај го предвидувањето"}
             </Button>
-            {tournamentLocked ? <p className="text-sm font-bold text-amber-200">Ресетирањето е затворено бидејќи првиот натпревар започна.</p> : null}
+            {tournamentLocked ? <p className="text-sm font-bold text-amber-200">Ресетирањето е затворено по рокот од 21:00 UTC.</p> : null}
             {error ? <p className="text-sm font-bold text-red-300">{error}</p> : null}
           </div>
           <PublicTournamentPredictions players={otherPlayers} className="mt-10 border-t border-white/10 pt-8" />
@@ -607,7 +607,7 @@ export function TournamentGame({
             <div className="grid size-12 place-items-center bg-amber-300/10 text-amber-200"><Trophy className="size-6" /></div>
             <h2 id="confirm-tournament-title" className="mt-5 text-2xl font-black">Да го потврдите турнирското предвидување?</h2>
             <p className="mt-3 text-sm leading-6 text-slate-400">
-              По потврдувањето можеш да го ресетираш целото предвидување и да започнеш одново само до почетокот на првиот натпревар.
+              По потврдувањето можеш да го ресетираш целото предвидување и да започнеш одново само до 21:00 UTC на 11 јуни.
             </p>
             <div className="mt-5 grid grid-cols-3 gap-2 bg-black/20 p-4 text-center">
               <div><p className="text-[10px] font-black uppercase text-slate-500">Шампион</p><p className="mt-1 text-sm font-bold text-lime-200">{champion?.name}</p></div>

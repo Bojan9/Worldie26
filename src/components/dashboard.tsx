@@ -52,8 +52,7 @@ import type { Match } from "@/lib/tournament";
 const nav = [
   { id: "Dashboard", label: "Почетна" },
   { id: "Tournament", label: "Турнир" },
-  { id: "Awards", label: "Награди" },
-  { id: "Fantasy", label: "Фантази тим" },
+  { id: "Fantasy", label: "Фантази" },
   { id: "Matches", label: "Натпревари" },
   { id: "Leaderboard", label: "Табела" },
 ];
@@ -179,7 +178,7 @@ function SignInRequired({
   section,
   configured,
 }: {
-  section: "Турнир" | "Награди" | "Натпревари" | "Фантази тим";
+  section: "Турнир" | "Натпревари" | "Фантази";
   configured: boolean;
 }) {
   return (
@@ -639,6 +638,55 @@ function Leaderboard({ players }: { players: LeaderboardEntry[] }) {
   );
 }
 
+function FantasyHub({ data }: { data: AppData }) {
+  const [tab, setTab] = useState<"team" | "awards">("team");
+  return (
+    <div>
+      <div className="mb-7 flex border-b border-white/10">
+        <button
+          type="button"
+          onClick={() => setTab("team")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-black transition",
+            tab === "team"
+              ? "border-lime-300 text-lime-300"
+              : "border-transparent text-slate-500 hover:text-white",
+          )}
+        >
+          <UserRound className="size-4" /> Фантази тим
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("awards")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-black transition",
+            tab === "awards"
+              ? "border-amber-300 text-amber-300"
+              : "border-transparent text-slate-500 hover:text-white",
+          )}
+        >
+          <Award className="size-4" /> Награди
+          {data.awardPrediction ? <Check className="size-3.5" /> : null}
+        </button>
+      </div>
+      {tab === "team" ? (
+        <FantasyTeamGame
+          players={data.awardPlayers}
+          savedTeam={data.fantasyTeam}
+          context={data.fantasyContext}
+          publicTeams={data.publicFantasyTeams}
+        />
+      ) : (
+        <AwardsGame
+          players={data.awardPlayers}
+          savedPrediction={data.awardPrediction}
+          currentTime={data.currentTime}
+        />
+      )}
+    </div>
+  );
+}
+
 export function Dashboard({ data }: { data: AppData }) {
   const [section, setSection] = useState("Dashboard");
   return (
@@ -651,15 +699,10 @@ export function Dashboard({ data }: { data: AppData }) {
             ? <TournamentGame signedIn configured={data.configured} savedPrediction={data.tournamentPrediction} tournamentLockTime={data.tournamentLockTime} tournamentLocked={data.tournamentLocked} otherPlayers={data.leaderboard.filter((player) => !player.current)} />
             : <SignInRequired section="Турнир" configured={data.configured} />
           : null}
-        {section === "Awards"
-          ? data.signedIn
-            ? <AwardsGame players={data.awardPlayers} savedPrediction={data.awardPrediction} currentTime={data.currentTime} />
-            : <SignInRequired section="Награди" configured={data.configured} />
-          : null}
         {section === "Fantasy"
           ? data.signedIn
-            ? <FantasyTeamGame players={data.awardPlayers} savedTeam={data.fantasyTeam} context={data.fantasyContext} publicTeams={data.publicFantasyTeams} />
-            : <SignInRequired section="Фантази тим" configured={data.configured} />
+            ? <FantasyHub data={data} />
+            : <SignInRequired section="Фантази" configured={data.configured} />
           : null}
         {section === "Matches"
           ? data.signedIn

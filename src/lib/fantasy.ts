@@ -1,14 +1,14 @@
-export const FANTASY_BUDGET = 1_600;
+export const FANTASY_BUDGET = 1_700;
 export const MAX_PLAYERS_PER_TEAM = 3;
 
-export const fantasyPositionCounts = {
-  Goalkeeper: 2,
-  Defender: 5,
-  Midfielder: 5,
-  Forward: 4,
+export const fantasyPositionLimits = {
+  Goalkeeper: { min: 2, max: 2 },
+  Defender: { min: 5, max: 5 },
+  Midfielder: { min: 5, max: 5 },
+  Forward: { min: 4, max: 4 },
 } as const;
 
-export type FantasyPosition = keyof typeof fantasyPositionCounts;
+export type FantasyPosition = keyof typeof fantasyPositionLimits;
 
 export const fantasyFormations = {
   "4-4-2": { Goalkeeper: 1, Defender: 4, Midfielder: 4, Forward: 2 },
@@ -90,7 +90,7 @@ const positionBasePrice: Record<FantasyPosition, number> = {
 };
 
 export function isFantasyPosition(position: string): position is FantasyPosition {
-  return position in fantasyPositionCounts;
+  return position in fantasyPositionLimits;
 }
 
 function stableHash(value: string) {

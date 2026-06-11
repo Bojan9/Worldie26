@@ -22,6 +22,8 @@ export type Match = {
   status?: string;
 };
 
+export const TOURNAMENT_PREDICTION_LOCK_TIME = "2026-06-11T21:00:00Z";
+
 const team = (code: string, name: string, flag: string): Team => ({
   code,
   name,
