@@ -134,7 +134,7 @@ function getTournamentLockTime() {
 
 function assertTournamentOpen(lockTime: Date) {
   if (Date.now() >= lockTime.getTime()) {
-    throw new Error("Турнирските предвидувања се затворени на 11 јуни 2026 во 21:00 UTC.");
+    throw new Error("Турнирските предвидувања се затворени на 13 јуни 2026 во 00:00 по варшавско време.");
   }
 }
 
