@@ -191,7 +191,6 @@ export async function getUpcomingMatches(): Promise<Match[]> {
     for (const match of matches) {
       const live = liveByMatch.get(matchKey(match.home, match.away));
       if (!live) continue;
-      match.id = Number(live.idEvent);
       match.kickoff = kickoff(live);
       match.venue = live.strVenue ?? match.venue;
       match.homeScore = score(live.intHomeScore);

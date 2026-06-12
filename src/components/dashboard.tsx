@@ -508,6 +508,23 @@ function MatchRow({
             <Badge variant="outline" className="border-white/10 text-slate-400">{data.summary.total} вкупно</Badge>
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {finished && data.current ? (
+              <div className="flex items-center gap-3 border border-cyan-300/30 bg-cyan-300/[0.06] p-3">
+                <Avatar className="size-8">
+                  <AvatarFallback className="bg-cyan-300/15 text-[10px] font-black text-cyan-200">
+                    ЈАС
+                  </AvatarFallback>
+                </Avatar>
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-cyan-200">
+                  Моето предвидување
+                </span>
+                <div className="flex items-center gap-1 font-mono font-black">
+                  <span className="grid size-7 place-items-center bg-black/20">{data.current.home}</span>
+                  <span className="text-slate-600">:</span>
+                  <span className="grid size-7 place-items-center bg-black/20">{data.current.away}</span>
+                </div>
+              </div>
+            ) : null}
             {data.players.map((prediction, predictionIndex) => (
               <div key={`${prediction.name}-${predictionIndex}`} className="flex items-center gap-3 border border-white/10 bg-white/[0.035] p-3">
                 <Avatar className="size-8">
@@ -522,7 +539,7 @@ function MatchRow({
                 </div>
               </div>
             ))}
-            {data.players.length === 0 ? <p className="col-span-full py-4 text-center text-sm text-slate-500">Сè уште нема други предвидувања.</p> : null}
+            {data.players.length === 0 && !(finished && data.current) ? <p className="col-span-full py-4 text-center text-sm text-slate-500">Сè уште нема други предвидувања.</p> : null}
           </div>
         </div>
       ) : null}
